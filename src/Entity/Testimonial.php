@@ -2,7 +2,11 @@
 
 namespace App\Entity;
 
+use App\Interface\TranslatableInterface;
 use App\Repository\TestimonialRepository;
+use App\Trait\StatusableOrderableTrait;
+use App\Trait\TimestampableTrait;
+use App\Trait\TranslatableTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -10,12 +14,26 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: TestimonialRepository::class)]
 #[ORM\Table(name: 'testimonials')]
-class Testimonial
+#[ORM\Index(columns: ['is_active'], name: 'idx_testimonial_active')]
+#[ORM\Index(columns: ['is_featured'], name: 'idx_testimonial_featured')]
+#[ORM\Index(columns: ['sort_order'], name: 'idx_testimonial_sort')]
+#[ORM\Index(columns: ['rating'], name: 'idx_testimonial_rating')]
+#[ORM\HasLifecycleCallbacks]
+class Testimonial implements TranslatableInterface
 {
+    use TimestampableTrait;
+    use StatusableOrderableTrait;
+    use TranslatableTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
+
+    #[ORM\Column(type: 'string', length: 255, unique: true)]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 255)]
+    private ?string $slug = null;
 
     #[ORM\Column(type: 'string', length: 255)]
     #[Assert\NotBlank]
@@ -42,34 +60,28 @@ class Testimonial
     #[Assert\Range(min: 1, max: 5)]
     private ?int $rating = null;
 
-    #[ORM\Column(type: 'boolean')]
-    private bool $isActive = true;
-
-    #[ORM\Column(type: 'boolean')]
-    private bool $isFeatured = false;
-
-    #[ORM\Column(type: 'integer')]
-    private int $sortOrder = 0;
-
-    #[ORM\Column(type: 'datetime_immutable')]
-    private \DateTimeImmutable $createdAt;
-
-    #[ORM\Column(type: 'datetime_immutable')]
-    private \DateTimeImmutable $updatedAt;
-
     #[ORM\OneToMany(mappedBy: 'testimonial', targetEntity: TestimonialTranslation::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $translations;
 
     public function __construct()
     {
         $this->translations = new ArrayCollection();
-        $this->createdAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
     }
 
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(?string $slug): static
+    {
+        $this->slug = $slug;
+        return $this;
     }
 
     public function getClientName(): string
@@ -138,55 +150,6 @@ class Testimonial
         return $this;
     }
 
-    public function isActive(): bool
-    {
-        return $this->isActive;
-    }
-
-    public function setIsActive(bool $isActive): static
-    {
-        $this->isActive = $isActive;
-        return $this;
-    }
-
-    public function isFeatured(): bool
-    {
-        return $this->isFeatured;
-    }
-
-    public function setIsFeatured(bool $isFeatured): static
-    {
-        $this->isFeatured = $isFeatured;
-        return $this;
-    }
-
-    public function getSortOrder(): int
-    {
-        return $this->sortOrder;
-    }
-
-    public function setSortOrder(int $sortOrder): static
-    {
-        $this->sortOrder = $sortOrder;
-        return $this;
-    }
-
-    public function getCreatedAt(): \DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
-    public function getUpdatedAt(): \DateTimeImmutable
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(): static
-    {
-        $this->updatedAt = new \DateTimeImmutable();
-        return $this;
-    }
-
     /**
      * @return Collection<int, TestimonialTranslation>
      */
@@ -217,52 +180,12 @@ class Testimonial
     }
 
     /**
-     * Get translation for a specific language
-     */
-    public function getTranslation(?string $languageCode = null): ?TestimonialTranslation
-    {
-        if ($languageCode === null) {
-            return $this->translations->first() ?: null;
-        }
-
-        foreach ($this->translations as $translation) {
-            if ($translation->getLanguage()->getCode() === $languageCode) {
-                return $translation;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Get translation with fallback
-     */
-    public function getTranslationWithFallback(string $languageCode, string $fallbackLanguageCode = 'fr'): ?TestimonialTranslation
-    {
-        $translation = $this->getTranslation($languageCode);
-        
-        if (!$translation) {
-            $translation = $this->getTranslation($fallbackLanguageCode);
-        }
-
-        return $translation;
-    }
-
-    /**
      * Get content for a specific language with fallback
      */
     public function getContent(string $languageCode = 'fr', string $fallbackLanguageCode = 'fr'): string
     {
         $translation = $this->getTranslationWithFallback($languageCode, $fallbackLanguageCode);
         return $translation ? $translation->getContent() : '';
-    }
-
-    /**
-     * Check if testimonial has translation for a specific language
-     */
-    public function hasTranslation(string $languageCode): bool
-    {
-        return $this->getTranslation($languageCode) !== null;
     }
 
     /**
@@ -273,8 +196,8 @@ class Testimonial
         $status = [];
         foreach ($this->translations as $translation) {
             $status[$translation->getLanguage()->getCode()] = [
-                'complete' => !empty($translation->getContent()),
-                'partial' => !empty($translation->getContent()),
+                'complete' => $translation->isComplete(),
+                'partial' => $translation->isPartial(),
                 'translation' => $translation
             ];
         }
@@ -297,6 +220,26 @@ class Testimonial
         }
         
         return $info;
+    }
+
+    /**
+     * Get rating as stars string
+     */
+    public function getRatingStars(): string
+    {
+        if ($this->rating === null) {
+            return '';
+        }
+        
+        return str_repeat('★', $this->rating) . str_repeat('☆', 5 - $this->rating);
+    }
+
+    /**
+     * Check if testimonial has avatar
+     */
+    public function hasAvatar(): bool
+    {
+        return $this->clientAvatar !== null;
     }
 
     public function __toString(): string

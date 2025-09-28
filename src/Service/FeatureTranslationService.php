@@ -9,7 +9,7 @@ use App\Repository\LanguageRepository;
 use App\Repository\FeatureRepository;
 use App\Repository\FeatureTranslationRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\String\Slugger\SluggerInterface;
+use App\Service\SlugGeneratorService;
 
 class FeatureTranslationService
 {
@@ -18,7 +18,7 @@ class FeatureTranslationService
         private FeatureRepository $featureRepository,
         private FeatureTranslationRepository $featureTranslationRepository,
         private LanguageRepository $languageRepository,
-        private SluggerInterface $slugger
+        private SlugGeneratorService $slugGenerator
     ) {}
 
     /**
@@ -31,7 +31,12 @@ class FeatureTranslationService
             $defaultLang = $this->languageRepository->findDefaultLanguage();
             $defaultTranslation = $translationsData[$defaultLang->getCode()] ?? reset($translationsData);
             if (!empty($defaultTranslation['title'])) {
-                $feature->setSlug($this->generateUniqueSlug($defaultTranslation['title']));
+                $slug = $this->slugGenerator->generateUniqueSlug(
+                    $defaultTranslation['title'], 
+                    Feature::class, 
+                    $feature->getId()
+                );
+                $feature->setSlug($slug);
             }
         }
 
@@ -63,10 +68,11 @@ class FeatureTranslationService
                 $feature->addTranslation($translation);
             }
 
-            $translation->setTitle($data['title'] ?? '');
-            $translation->setDescription($data['description'] ?? '');
-            $translation->setMetaTitle($data['metaTitle'] ?? null);
-            $translation->setMetaDescription($data['metaDescription'] ?? null);
+            // Sanitize and validate data
+            $translation->setTitle($this->sanitizeText($data['title'] ?? ''));
+            $translation->setDescription($this->sanitizeText($data['description'] ?? ''));
+            $translation->setMetaTitle($this->sanitizeText($data['metaTitle'] ?? null));
+            $translation->setMetaDescription($this->sanitizeText($data['metaDescription'] ?? null));
             $translation->setUpdatedAt();
 
             $this->entityManager->persist($translation);
@@ -77,20 +83,15 @@ class FeatureTranslationService
     }
 
     /**
-     * Generate unique slug
+     * Sanitize text input to prevent XSS
      */
-    public function generateUniqueSlug(string $title): string
+    private function sanitizeText(?string $text): ?string
     {
-        $baseSlug = $this->slugger->slug($title)->lower();
-        $slug = $baseSlug;
-        $counter = 1;
-
-        while ($this->featureRepository->findBySlug($slug)) {
-            $slug = $baseSlug . '-' . $counter;
-            $counter++;
+        if ($text === null) {
+            return null;
         }
-
-        return $slug;
+        
+        return htmlspecialchars(trim($text), ENT_QUOTES, 'UTF-8');
     }
 
     /**
@@ -102,12 +103,12 @@ class FeatureTranslationService
         $targetLanguage = $this->languageRepository->findByCode($targetLanguageCode);
 
         if (!$sourceLanguage || !$targetLanguage) {
-            return null;
+            throw new \InvalidArgumentException('Source or target language not found');
         }
 
         $sourceTranslation = $feature->getTranslation($sourceLanguageCode);
         if (!$sourceTranslation) {
-            return null;
+            throw new \InvalidArgumentException('Source translation not found');
         }
 
         // Check if target translation already exists
@@ -130,7 +131,8 @@ class FeatureTranslationService
      */
     public function getFeaturesWithTranslationStatus(): array
     {
-        $features = $this->featureRepository->findActiveFeatures();
+        // Use optimized query with joins to avoid N+1 problem
+        $features = $this->featureRepository->findWithTranslations();
         $languages = $this->languageRepository->findActiveLanguages();
         $result = [];
 
@@ -187,7 +189,7 @@ class FeatureTranslationService
     public function getGlobalTranslationStatistics(): array
     {
         $languages = $this->languageRepository->findActiveLanguages();
-        $totalFeatures = count($this->featureRepository->findActiveFeatures());
+        $totalFeatures = $this->featureRepository->countActive();
         $statistics = [];
 
         foreach ($languages as $language) {
@@ -214,8 +216,8 @@ class FeatureTranslationService
     public function createMissingTranslations(string $languageCode, ?string $sourceLanguageCode = null): int
     {
         $language = $this->languageRepository->findByCode($languageCode);
-        if (!$language) {
-            return 0;
+        if (!$language || !$language->isActive()) {
+            throw new \InvalidArgumentException("Language {$languageCode} not found or inactive");
         }
 
         $sourceLanguage = null;
@@ -256,7 +258,10 @@ class FeatureTranslationService
             $created++;
         }
 
-        $this->entityManager->flush();
+        if ($created > 0) {
+            $this->entityManager->flush();
+        }
+        
         return $created;
     }
 
@@ -272,7 +277,44 @@ class FeatureTranslationService
             $this->entityManager->remove($translation);
         }
 
-        $this->entityManager->flush();
+        if ($count > 0) {
+            $this->entityManager->flush();
+        }
+        
         return $count;
+    }
+
+    /**
+     * Search features by text in translations
+     */
+    public function searchFeatures(string $query, ?string $languageCode = null, int $limit = 20): array
+    {
+        return $this->featureRepository->searchByTranslationText($query, $languageCode, $limit);
+    }
+
+    /**
+     * Validate feature data before processing
+     */
+    public function validateFeatureData(array $data): array
+    {
+        $errors = [];
+
+        // Validate required fields
+        if (empty($data['translations']) || !is_array($data['translations'])) {
+            $errors[] = 'At least one translation is required';
+        }
+
+        // Validate each translation
+        foreach ($data['translations'] ?? [] as $langCode => $translation) {
+            if (empty($translation['title'])) {
+                $errors[] = "Title is required for language {$langCode}";
+            }
+            
+            if (!empty($translation['title']) && strlen($translation['title']) > 255) {
+                $errors[] = "Title too long for language {$langCode} (max 255 characters)";
+            }
+        }
+
+        return $errors;
     }
 }

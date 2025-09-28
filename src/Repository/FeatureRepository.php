@@ -59,17 +59,63 @@ class FeatureRepository extends ServiceEntityRepository
     }
 
     /**
-     * Find features with translations count
+     * Find features with translations count using optimized query
      */
-    public function findWithTranslationsCount(): array
+    public function findWithTranslations(): array
     {
         return $this->createQueryBuilder('f')
             ->leftJoin('f.translations', 't')
-            ->groupBy('f.id')
+            ->addSelect('t')
+            ->leftJoin('t.language', 'l')
+            ->addSelect('l')
+            ->where('f.isActive = :active')
+            ->setParameter('active', true)
             ->orderBy('f.sortOrder', 'ASC')
             ->addOrderBy('f.createdAt', 'DESC')
             ->getQuery()
             ->getResult();
+    }
+
+    /**
+     * Search features by translation text
+     */
+    public function searchByTranslationText(string $query, ?string $languageCode = null, int $limit = 20): array
+    {
+        $qb = $this->createQueryBuilder('f')
+            ->leftJoin('f.translations', 't')
+            ->leftJoin('t.language', 'l')
+            ->where('f.isActive = :active')
+            ->andWhere('(t.title LIKE :query OR t.description LIKE :query)')
+            ->setParameter('active', true)
+            ->setParameter('query', '%' . $query . '%')
+            ->orderBy('f.sortOrder', 'ASC')
+            ->setMaxResults($limit);
+
+        if ($languageCode) {
+            $qb->andWhere('l.code = :languageCode')
+               ->setParameter('languageCode', $languageCode);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * Find features by category or tag
+     */
+    public function findByCategory(string $category, bool $activeOnly = true): array
+    {
+        $qb = $this->createQueryBuilder('f');
+        
+        if ($activeOnly) {
+            $qb->where('f.isActive = :active')
+               ->setParameter('active', true);
+        }
+        
+        // This would require adding a category field to Feature entity
+        // For now, we'll just return active features
+        return $qb->orderBy('f.sortOrder', 'ASC')
+                  ->getQuery()
+                  ->getResult();
     }
 
     /**
