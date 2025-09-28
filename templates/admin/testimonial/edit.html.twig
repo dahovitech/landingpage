@@ -1,0 +1,166 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Éditer le Témoignage{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3">Éditer le Témoignage</h1>
+                <div>
+                    <a href="{{ path('admin_testimonial_show', {id: testimonial.id}) }}" class="btn btn-info me-2">
+                        <i class="bi bi-eye"></i> Voir
+                    </a>
+                    <a href="{{ path('admin_testimonial_index') }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Retour
+                    </a>
+                </div>
+            </div>
+
+            <form method="post" class="needs-validation" novalidate>
+                <div class="row">
+                    <!-- Testimonial Configuration -->
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Configuration du Témoignage</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="clientName" class="form-label">Nom du client *</label>
+                                    <input type="text" class="form-control" id="clientName" name="clientName" 
+                                           value="{{ testimonial.clientName }}" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="company" class="form-label">Société</label>
+                                    <input type="text" class="form-control" id="company" name="company" 
+                                           value="{{ testimonial.company }}">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="position" class="form-label">Poste</label>
+                                    <input type="text" class="form-control" id="position" name="position" 
+                                           value="{{ testimonial.position }}">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="slug" class="form-label">Slug (URL)</label>
+                                    <input type="text" class="form-control" id="slug" name="slug" 
+                                           value="{{ testimonial.slug }}">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="rating" class="form-label">Note (1-5)</label>
+                                    <select class="form-select" id="rating" name="rating">
+                                        <option value="">Aucune note</option>
+                                        {% for i in 1..5 %}
+                                            <option value="{{ i }}" {{ testimonial.rating == i ? 'selected' : '' }}>
+                                                {{ i }} étoile{{ i > 1 ? 's' : '' }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="sortOrder" class="form-label">Ordre de tri</label>
+                                    <input type="number" class="form-control" id="sortOrder" name="sortOrder" 
+                                           value="{{ testimonial.sortOrder }}" min="0">
+                                </div>
+
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="isActive" 
+                                               name="isActive" value="1" 
+                                               {{ testimonial.isActive ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="isActive">
+                                            Témoignage actif
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Sélecteur de photo -->
+                                {% include 'components/media_selector.html.twig' with {
+                                    'selectedMedia': testimonial.photo,
+                                    'inputName': 'photoId',
+                                    'label': 'Photo du client'
+                                } %}
+
+                                <div class="alert alert-info">
+                                    <small>
+                                        <strong>Créé le:</strong> {{ testimonial.createdAt|date('d/m/Y H:i') }}<br>
+                                        <strong>Modifié le:</strong> {{ testimonial.updatedAt|date('d/m/Y H:i') }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Translations -->
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Traductions</h5>
+                            </div>
+                            <div class="card-body">
+                                <!-- Language Tabs -->
+                                <ul class="nav nav-tabs" id="languageTabs" role="tablist">
+                                    {% for language in languages %}
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link {{ loop.first ? 'active' : '' }}" 
+                                                    id="{{ language.code }}-tab" 
+                                                    data-bs-toggle="tab" 
+                                                    data-bs-target="#{{ language.code }}-content" 
+                                                    type="button" role="tab">
+                                                {{ language.nativeName }}
+                                                {% if language.isDefault %}
+                                                    <span class="badge bg-primary ms-1">Défaut</span>
+                                                {% endif %}
+                                            </button>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+
+                                <!-- Language Content -->
+                                <div class="tab-content" id="languageTabsContent">
+                                    {% for language in languages %}
+                                        {% set translation = testimonial.getTranslation(language.code) %}
+                                        <div class="tab-pane fade {{ loop.first ? 'show active' : '' }}" 
+                                             id="{{ language.code }}-content" 
+                                             role="tabpanel">
+                                            <div class="p-3">
+                                                <div class="mb-3">
+                                                    <label for="content_{{ language.code }}" class="form-label">
+                                                        Contenu du témoignage *
+                                                    </label>
+                                                    <textarea class="form-control" 
+                                                              id="content_{{ language.code }}" 
+                                                              name="translations[{{ language.code }}][content]" 
+                                                              rows="8" required>{{ translation ? translation.content : '' }}</textarea>
+                                                    <div class="form-text">Le contenu principal du témoignage</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{{ path('admin_testimonial_index') }}" class="btn btn-secondary">Annuler</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-floppy"></i> Sauvegarder
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

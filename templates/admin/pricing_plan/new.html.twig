@@ -1,0 +1,202 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Nouveau Plan Tarifaire{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3">Nouveau Plan Tarifaire</h1>
+                <a href="{{ path('admin_pricing_plan_index') }}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Retour
+                </a>
+            </div>
+
+            <form method="post" class="needs-validation" novalidate>
+                <div class="row">
+                    <!-- Pricing Plan Configuration -->
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Configuration du Plan</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">Nom du plan *</label>
+                                    <input type="text" class="form-control" id="name" name="name" 
+                                           value="{{ pricingPlan.name ?? '' }}" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="slug" class="form-label">Slug (URL)</label>
+                                    <input type="text" class="form-control" id="slug" name="slug" 
+                                           value="{{ pricingPlan.slug ?? '' }}" 
+                                           placeholder="Sera généré automatiquement">
+                                    <div class="form-text">Laissez vide pour génération automatique</div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="price" class="form-label">Prix</label>
+                                            <input type="number" class="form-control" id="price" name="price" 
+                                                   value="{{ pricingPlan.price }}" step="0.01" min="0">
+                                            <div class="form-text">En euros</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="billingPeriod" class="form-label">Période</label>
+                                            <select class="form-select" id="billingPeriod" name="billingPeriod">
+                                                <option value="">Aucune</option>
+                                                <option value="mois" {{ pricingPlan.billingPeriod == 'mois' ? 'selected' : '' }}>Mois</option>
+                                                <option value="trimestre" {{ pricingPlan.billingPeriod == 'trimestre' ? 'selected' : '' }}>Trimestre</option>
+                                                <option value="semestre" {{ pricingPlan.billingPeriod == 'semestre' ? 'selected' : '' }}>Semestre</option>
+                                                <option value="année" {{ pricingPlan.billingPeriod == 'année' ? 'selected' : '' }}>Année</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="buttonText" class="form-label">Texte du bouton</label>
+                                    <input type="text" class="form-control" id="buttonText" name="buttonText" 
+                                           value="{{ pricingPlan.buttonText ?? '' }}" 
+                                           placeholder="Choisir ce plan">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="buttonUrl" class="form-label">URL du bouton</label>
+                                    <input type="url" class="form-control" id="buttonUrl" name="buttonUrl" 
+                                           value="{{ pricingPlan.buttonUrl ?? '' }}" 
+                                           placeholder="https://...">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="sortOrder" class="form-label">Ordre de tri</label>
+                                    <input type="number" class="form-control" id="sortOrder" name="sortOrder" 
+                                           value="{{ pricingPlan.sortOrder }}" min="0">
+                                </div>
+
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="isActive" 
+                                               name="isActive" value="1" 
+                                               {{ pricingPlan.isActive ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="isActive">
+                                            Plan actif
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="isPopular" 
+                                               name="isPopular" value="1" 
+                                               {{ pricingPlan.isPopular ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="isPopular">
+                                            Plan populaire
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Translations -->
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Traductions</h5>
+                            </div>
+                            <div class="card-body">
+                                <!-- Language Tabs -->
+                                <ul class="nav nav-tabs" id="languageTabs" role="tablist">
+                                    {% for language in languages %}
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link {{ loop.first ? 'active' : '' }}" 
+                                                    id="{{ language.code }}-tab" 
+                                                    data-bs-toggle="tab" 
+                                                    data-bs-target="#{{ language.code }}-content" 
+                                                    type="button" role="tab">
+                                                {{ language.nativeName }}
+                                                {% if language.isDefault %}
+                                                    <span class="badge bg-primary ms-1">Défaut</span>
+                                                {% endif %}
+                                            </button>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+
+                                <!-- Language Content -->
+                                <div class="tab-content" id="languageTabsContent">
+                                    {% for language in languages %}
+                                        <div class="tab-pane fade {{ loop.first ? 'show active' : '' }}" 
+                                             id="{{ language.code }}-content" 
+                                             role="tabpanel">
+                                            <div class="p-3">
+                                                <div class="mb-3">
+                                                    <label for="description_{{ language.code }}" class="form-label">
+                                                        Description
+                                                    </label>
+                                                    <textarea class="form-control" 
+                                                              id="description_{{ language.code }}" 
+                                                              name="translations[{{ language.code }}][description]" 
+                                                              rows="4"></textarea>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label for="features_{{ language.code }}" class="form-label">
+                                                        Fonctionnalités (une par ligne)
+                                                    </label>
+                                                    <textarea class="form-control" 
+                                                              id="features_{{ language.code }}" 
+                                                              name="translations[{{ language.code }}][features]" 
+                                                              rows="8"
+                                                              placeholder="Fonctionnalité 1&#10;Fonctionnalité 2&#10;Fonctionnalité 3"></textarea>
+                                                    <div class="form-text">Chaque ligne sera une fonctionnalité séparée</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{{ path('admin_pricing_plan_index') }}" class="btn btn-secondary">Annuler</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-floppy"></i> Créer le plan tarifaire
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-generate slug from plan name
+const nameInput = document.getElementById('name');
+const slugInput = document.getElementById('slug');
+
+if (nameInput && slugInput) {
+    nameInput.addEventListener('input', function() {
+        if (!slugInput.value) {
+            const slug = this.value
+                .toLowerCase()
+                .replace(/[^\w\s-]/g, '')
+                .replace(/[\s_-]+/g, '-')
+                .replace(/^-+|-+$/g, '');
+            slugInput.value = slug;
+        }
+    });
+}
+</script>
+{% endblock %}

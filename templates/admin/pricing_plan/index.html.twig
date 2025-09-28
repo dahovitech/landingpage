@@ -1,0 +1,148 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Gestion des Plans Tarifaires{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3">Gestion des Plans Tarifaires</h1>
+                <div>
+                    <a href="{{ path('admin_pricing_plan_new') }}" class="btn btn-primary">
+                        <i class="bi bi-plus"></i> Nouveau plan tarifaire
+                    </a>
+                </div>
+            </div>
+
+            <!-- Pricing Plans Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Liste des Plans Tarifaires</h5>
+                </div>
+                <div class="card-body">
+                    {% if pricingPlans is empty %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-inbox fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Aucun plan tarifaire disponible.</p>
+                            <a href="{{ path('admin_pricing_plan_new') }}" class="btn btn-primary">
+                                Créer le premier plan tarifaire
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Plan</th>
+                                        <th>Prix</th>
+                                        <th>Statut</th>
+                                        <th>Populaire</th>
+                                        <th>Ordre</th>
+                                        <th>Traductions</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for pricingPlan in pricingPlans %}
+                                        <tr>
+                                            <td>
+                                                <div>
+                                                    <strong>{{ pricingPlan.name }}</strong><br>
+                                                    <small class="text-muted">{{ pricingPlan.slug }}</small>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    {% if pricingPlan.price %}
+                                                        <strong class="h5 text-primary">{{ pricingPlan.price }}€</strong>
+                                                        {% if pricingPlan.billingPeriod %}
+                                                            <small class="text-muted">/ {{ pricingPlan.billingPeriod }}</small>
+                                                        {% endif %}
+                                                    {% else %}
+                                                        <span class="text-muted">Gratuit</span>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                {% if pricingPlan.isActive %}
+                                                    <span class="badge bg-success">Actif</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">Inactif</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if pricingPlan.isPopular %}
+                                                    <span class="badge bg-warning">Populaire</span>
+                                                {% else %}
+                                                    <span class="badge bg-light text-dark">Normal</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-info">{{ pricingPlan.sortOrder }}</span>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex gap-1">
+                                                    {% for translation in pricingPlan.translations %}
+                                                        <span class="badge bg-success" title="{{ translation.language.nativeName }}">
+                                                            {{ translation.language.code|upper }}
+                                                        </span>
+                                                    {% endfor %}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a href="{{ path('admin_pricing_plan_show', {id: pricingPlan.id}) }}" 
+                                                       class="btn btn-sm btn-outline-info"
+                                                       title="Voir">
+                                                        <i class="bi bi-eye"></i>
+                                                    </a>
+                                                    <a href="{{ path('admin_pricing_plan_edit', {id: pricingPlan.id}) }}" 
+                                                       class="btn btn-sm btn-outline-primary"
+                                                       title="Éditer">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#deleteModal{{ pricingPlan.id }}"
+                                                            title="Supprimer">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Delete Modals -->
+                        {% for pricingPlan in pricingPlans %}
+                            <div class="modal fade" id="deleteModal{{ pricingPlan.id }}" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Confirmer la suppression</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Êtes-vous sûr de vouloir supprimer le plan tarifaire "{{ pricingPlan.name }}" ?
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                            <form method="post" action="{{ path('admin_pricing_plan_delete', {id: pricingPlan.id}) }}" class="d-inline">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ pricingPlan.id) }}">
+                                                <button type="submit" class="btn btn-danger">Supprimer</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

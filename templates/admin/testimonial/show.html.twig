@@ -1,0 +1,155 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}{{ testimonial.clientName }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3">Témoignage de {{ testimonial.clientName }}</h1>
+                <div>
+                    <a href="{{ path('admin_testimonial_edit', {id: testimonial.id}) }}" class="btn btn-primary me-2">
+                        <i class="bi bi-pencil"></i> Éditer
+                    </a>
+                    <a href="{{ path('admin_testimonial_index') }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Retour
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Testimonial Details -->
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Détails du Témoignage</h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Photo -->
+                            {% if testimonial.photo %}
+                                <div class="text-center mb-3">
+                                    <img src="/{{ testimonial.photo.webPath }}" alt="{{ testimonial.photo.alt }}" 
+                                         class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover;">
+                                </div>
+                            {% endif %}
+                            
+                            <dl class="row">
+                                <dt class="col-sm-4">Client:</dt>
+                                <dd class="col-sm-8">{{ testimonial.clientName }}</dd>
+                                
+                                {% if testimonial.company %}
+                                    <dt class="col-sm-4">Société:</dt>
+                                    <dd class="col-sm-8">{{ testimonial.company }}</dd>
+                                {% endif %}
+                                
+                                {% if testimonial.position %}
+                                    <dt class="col-sm-4">Poste:</dt>
+                                    <dd class="col-sm-8">{{ testimonial.position }}</dd>
+                                {% endif %}
+                                
+                                <dt class="col-sm-4">Slug:</dt>
+                                <dd class="col-sm-8"><code>{{ testimonial.slug }}</code></dd>
+                                
+                                {% if testimonial.rating %}
+                                    <dt class="col-sm-4">Note:</dt>
+                                    <dd class="col-sm-8">
+                                        {% for i in 1..5 %}
+                                            {% if i <= testimonial.rating %}
+                                                <i class="bi bi-star-fill text-warning"></i>
+                                            {% else %}
+                                                <i class="bi bi-star text-muted"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                        ({{ testimonial.rating }}/5)
+                                    </dd>
+                                {% endif %}
+                                
+                                <dt class="col-sm-4">Ordre:</dt>
+                                <dd class="col-sm-8">{{ testimonial.sortOrder }}</dd>
+                                
+                                <dt class="col-sm-4">Statut:</dt>
+                                <dd class="col-sm-8">
+                                    {% if testimonial.isActive %}
+                                        <span class="badge bg-success">Actif</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Inactif</span>
+                                    {% endif %}
+                                </dd>
+                                
+                                <dt class="col-sm-4">Créé le:</dt>
+                                <dd class="col-sm-8">{{ testimonial.createdAt|date('d/m/Y H:i') }}</dd>
+                                
+                                <dt class="col-sm-4">Modifié le:</dt>
+                                <dd class="col-sm-8">{{ testimonial.updatedAt|date('d/m/Y H:i') }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Translations -->
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Traductions</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if testimonial.translations is empty %}
+                                <div class="text-center py-4">
+                                    <i class="bi bi-translate fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted">Aucune traduction disponible.</p>
+                                    <a href="{{ path('admin_testimonial_edit', {id: testimonial.id}) }}" class="btn btn-primary">
+                                        Ajouter des traductions
+                                    </a>
+                                </div>
+                            {% else %}
+                                <!-- Language Tabs -->
+                                <ul class="nav nav-tabs" id="languageTabs" role="tablist">
+                                    {% for translation in testimonial.translations %}
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link {{ loop.first ? 'active' : '' }}" 
+                                                    id="{{ translation.language.code }}-tab" 
+                                                    data-bs-toggle="tab" 
+                                                    data-bs-target="#{{ translation.language.code }}-content" 
+                                                    type="button" role="tab">
+                                                {{ translation.language.nativeName }}
+                                                {% if translation.language.isDefault %}
+                                                    <span class="badge bg-primary ms-1">Défaut</span>
+                                                {% endif %}
+                                            </button>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+
+                                <!-- Language Content -->
+                                <div class="tab-content" id="languageTabsContent">
+                                    {% for translation in testimonial.translations %}
+                                        <div class="tab-pane fade {{ loop.first ? 'show active' : '' }}" 
+                                             id="{{ translation.language.code }}-content" 
+                                             role="tabpanel">
+                                            <div class="p-3">
+                                                <h6>Contenu du témoignage</h6>
+                                                <div class="border p-3 bg-light">
+                                                    <blockquote class="blockquote mb-0">
+                                                        <p>{{ translation.content|nl2br }}</p>
+                                                        <footer class="blockquote-footer">
+                                                            {{ testimonial.clientName }}
+                                                            {% if testimonial.company %}
+                                                                <cite title="Source Title">{{ testimonial.company }}</cite>
+                                                            {% endif %}
+                                                        </footer>
+                                                    </blockquote>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

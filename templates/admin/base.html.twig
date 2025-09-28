@@ -96,6 +96,30 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link{% if app.request.get('_route') starts with 'admin_feature_' %} active{% endif %}" 
+                           href="{{ path('admin_feature_index') }}">
+                            <i class="bi bi-stars me-2"></i>Fonctionnalités
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link{% if app.request.get('_route') starts with 'admin_testimonial_' %} active{% endif %}" 
+                           href="{{ path('admin_testimonial_index') }}">
+                            <i class="bi bi-chat-quote me-2"></i>Témoignages
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link{% if app.request.get('_route') starts with 'admin_pricing_plan_' %} active{% endif %}" 
+                           href="{{ path('admin_pricing_plan_index') }}">
+                            <i class="bi bi-currency-dollar me-2"></i>Plans Tarifaires
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link{% if app.request.get('_route') starts with 'admin_faq_' %} active{% endif %}" 
+                           href="{{ path('admin_faq_index') }}">
+                            <i class="bi bi-question-circle me-2"></i>FAQ
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link{% if app.request.get('_route') starts with 'admin_media_' %} active{% endif %}" 
                            href="{{ path('admin_media_index') }}">
                             <i class="bi bi-images me-2"></i>{{ 'navigation.media'|trans({}, 'admin') }}

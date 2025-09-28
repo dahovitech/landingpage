@@ -1,0 +1,135 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Gestion des FAQ{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3">Gestion des FAQ</h1>
+                <div>
+                    <a href="{{ path('admin_faq_new') }}" class="btn btn-primary">
+                        <i class="bi bi-plus"></i> Nouvelle question FAQ
+                    </a>
+                </div>
+            </div>
+
+            <!-- FAQ Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Liste des Questions FAQ</h5>
+                </div>
+                <div class="card-body">
+                    {% if faqs is empty %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-inbox fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Aucune question FAQ disponible.</p>
+                            <a href="{{ path('admin_faq_new') }}" class="btn btn-primary">
+                                Créer la première question FAQ
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Question</th>
+                                        <th>Catégorie</th>
+                                        <th>Statut</th>
+                                        <th>Ordre</th>
+                                        <th>Traductions</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for faq in faqs %}
+                                        <tr>
+                                            <td>
+                                                <div>
+                                                    <strong>{{ faq.question }}</strong><br>
+                                                    <small class="text-muted">{{ faq.slug }}</small>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                {% if faq.category %}
+                                                    <span class="badge bg-info">{{ faq.category }}</span>
+                                                {% else %}
+                                                    <span class="text-muted">Aucune</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if faq.isActive %}
+                                                    <span class="badge bg-success">Actif</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">Inactif</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-info">{{ faq.sortOrder }}</span>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex gap-1">
+                                                    {% for translation in faq.translations %}
+                                                        <span class="badge bg-success" title="{{ translation.language.nativeName }}">
+                                                            {{ translation.language.code|upper }}
+                                                        </span>
+                                                    {% endfor %}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a href="{{ path('admin_faq_show', {id: faq.id}) }}" 
+                                                       class="btn btn-sm btn-outline-info"
+                                                       title="Voir">
+                                                        <i class="bi bi-eye"></i>
+                                                    </a>
+                                                    <a href="{{ path('admin_faq_edit', {id: faq.id}) }}" 
+                                                       class="btn btn-sm btn-outline-primary"
+                                                       title="Éditer">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#deleteModal{{ faq.id }}"
+                                                            title="Supprimer">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Delete Modals -->
+                        {% for faq in faqs %}
+                            <div class="modal fade" id="deleteModal{{ faq.id }}" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Confirmer la suppression</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Êtes-vous sûr de vouloir supprimer la question FAQ "{{ faq.question }}" ?
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                            <form method="post" action="{{ path('admin_faq_delete', {id: faq.id}) }}" class="d-inline">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ faq.id) }}">
+                                                <button type="submit" class="btn btn-danger">Supprimer</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
