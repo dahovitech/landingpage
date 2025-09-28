@@ -1,0 +1,174 @@
+{% extends 'frontend/base.html.twig' %}
+
+{% block title %}{{ 'about.title'|trans }} - {{ parent() }}{% endblock %}
+
+{% block meta_description %}{{ 'about.meta_description'|trans }}{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <!-- Page Header -->
+    <div class="row text-center mb-5">
+        <div class="col-12">
+            <h1 class="display-4 mb-3">{{ 'about.title'|trans }}</h1>
+            <p class="lead text-muted">{{ 'about.subtitle'|trans }}</p>
+        </div>
+    </div>
+
+    <!-- Mission Section -->
+    <div class="row align-items-center mb-5">
+        <div class="col-lg-6">
+            <h2 class="fw-bold mb-4">{{ 'about.mission.title'|trans }}</h2>
+            <p class="lead">{{ 'about.mission.description'|trans }}</p>
+            <p>{{ 'about.mission.details'|trans }}</p>
+        </div>
+        <div class="col-lg-6 text-center">
+            <div class="mission-icon">
+                <i class="bi bi-rocket text-primary" style="font-size: 8rem; opacity: 0.8;"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Values Section -->
+    <div class="row mb-5">
+        <div class="col-12 text-center mb-5">
+            <h2 class="fw-bold">{{ 'about.values.title'|trans }}</h2>
+            <p class="lead text-muted">{{ 'about.values.subtitle'|trans }}</p>
+        </div>
+        
+        <div class="col-md-4 text-center mb-4">
+            <div class="value-card p-4">
+                <i class="bi bi-lightbulb text-primary mb-3" style="font-size: 3rem;"></i>
+                <h4 class="fw-bold">{{ 'about.values.innovation.title'|trans }}</h4>
+                <p class="text-muted">{{ 'about.values.innovation.description'|trans }}</p>
+            </div>
+        </div>
+        
+        <div class="col-md-4 text-center mb-4">
+            <div class="value-card p-4">
+                <i class="bi bi-heart text-primary mb-3" style="font-size: 3rem;"></i>
+                <h4 class="fw-bold">{{ 'about.values.passion.title'|trans }}</h4>
+                <p class="text-muted">{{ 'about.values.passion.description'|trans }}</p>
+            </div>
+        </div>
+        
+        <div class="col-md-4 text-center mb-4">
+            <div class="value-card p-4">
+                <i class="bi bi-award text-primary mb-3" style="font-size: 3rem;"></i>
+                <h4 class="fw-bold">{{ 'about.values.excellence.title'|trans }}</h4>
+                <p class="text-muted">{{ 'about.values.excellence.description'|trans }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Team Section -->
+    <div class="row mb-5">
+        <div class="col-12 text-center mb-5">
+            <h2 class="fw-bold">{{ 'about.team.title'|trans }}</h2>
+            <p class="lead text-muted">{{ 'about.team.subtitle'|trans }}</p>
+        </div>
+        
+        <div class="col-md-6 col-lg-3 text-center mb-4">
+            <div class="team-member">
+                <div class="team-avatar mb-3">
+                    <i class="bi bi-person-circle text-primary" style="font-size: 5rem;"></i>
+                </div>
+                <h5 class="fw-bold">{{ 'about.team.ceo.name'|trans }}</h5>
+                <p class="text-muted">{{ 'about.team.ceo.title'|trans }}</p>
+            </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-3 text-center mb-4">
+            <div class="team-member">
+                <div class="team-avatar mb-3">
+                    <i class="bi bi-person-circle text-primary" style="font-size: 5rem;"></i>
+                </div>
+                <h5 class="fw-bold">{{ 'about.team.cto.name'|trans }}</h5>
+                <p class="text-muted">{{ 'about.team.cto.title'|trans }}</p>
+            </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-3 text-center mb-4">
+            <div class="team-member">
+                <div class="team-avatar mb-3">
+                    <i class="bi bi-person-circle text-primary" style="font-size: 5rem;"></i>
+                </div>
+                <h5 class="fw-bold">{{ 'about.team.designer.name'|trans }}</h5>
+                <p class="text-muted">{{ 'about.team.designer.title'|trans }}</p>
+            </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-3 text-center mb-4">
+            <div class="team-member">
+                <div class="team-avatar mb-3">
+                    <i class="bi bi-person-circle text-primary" style="font-size: 5rem;"></i>
+                </div>
+                <h5 class="fw-bold">{{ 'about.team.developer.name'|trans }}</h5>
+                <p class="text-muted">{{ 'about.team.developer.title'|trans }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Section -->
+    <div class="row">
+        <div class="col-lg-8 mx-auto text-center">
+            <h2 class="fw-bold mb-4">{{ 'about.history.title'|trans }}</h2>
+            <p class="lead">{{ 'about.history.description'|trans }}</p>
+            <p>{{ 'about.history.details'|trans }}</p>
+            
+            <div class="mt-4">
+                <a href="{{ path('frontend_contact', {'_locale': app.request.locale}) }}" 
+                   class="btn btn-primary btn-lg">
+                    <i class="bi bi-envelope me-2"></i>{{ 'about.contact_us'|trans }}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .value-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-radius: 1rem;
+            height: 100%;
+        }
+        
+        .value-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .team-member {
+            transition: transform 0.3s ease;
+        }
+        
+        .team-member:hover {
+            transform: translateY(-5px);
+        }
+        
+        .mission-icon {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .display-4 {
+                font-size: 2rem;
+            }
+            
+            .mission-icon i {
+                font-size: 4rem !important;
+            }
+        }
+    </style>
+{% endblock %}

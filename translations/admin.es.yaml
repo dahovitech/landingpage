@@ -1,0 +1,158 @@
+# Interfaz de Administración - Español
+navigation:
+  dashboard: Panel de Control
+  services: Servicios
+  media: Gestor de Medios
+  languages: Idiomas
+  translations: Traducciones
+  settings: Configuración
+  logout: Cerrar Sesión
+
+dashboard:
+  title: Panel de Control
+  welcome: Bienvenido a la Administración de LandingPageCms
+  statistics: Estadísticas
+  recent_activity: Actividad Reciente
+  quick_actions: Acciones Rápidas
+  total_languages: Idiomas Configurados
+  translation_progress: Progreso de Traducciones
+  manage_languages: Gestionar idiomas
+  languages_count: Idiomas
+  translations_count: Traducciones
+  completion: Complección
+  view_all: Ver Todo
+  configured_languages: Idiomas Configurados
+  manage: Gestionar
+  no_language_configured: No hay idiomas configurados
+  add_language: Agregar Idioma
+  updated: Actualizado
+  slug: Slug
+  status: Estado
+
+languages:
+  title: Gestión de Idiomas
+  list_title: Lista de Idiomas
+  new_title: Nuevo Idioma
+  edit_title: Editar Idioma
+  show_title: Detalles del Idioma
+  fields:
+    name: Nombre
+    code: Código
+    native_name: Nombre Nativo
+    default: Por Defecto
+    active: Activo
+    created_at: Creado el
+    updated_at: Actualizado el
+  actions:
+    new: Nuevo Idioma
+    edit: Editar
+    delete: Eliminar
+    show: Ver Detalles
+    set_default: Establecer por Defecto
+    activate: Activar
+    deactivate: Desactivar
+    back_to_list: Volver a la Lista
+  messages:
+    created: Idioma creado exitosamente
+    updated: Idioma actualizado exitosamente
+    deleted: Idioma eliminado exitosamente
+    set_as_default: Idioma establecido como por defecto
+    activated: Idioma activado
+    deactivated: Idioma desactivado
+    confirm_delete: ¿Estás seguro de que quieres eliminar este idioma?
+    no_languages: No hay idiomas configurados
+    create_first: Crear el primer idioma
+  help:
+    code: "Código ISO del idioma (ej: fr, en, es)"
+    native_name: Nombre del idioma en su idioma nativo
+    default: Solo un idioma puede ser establecido como por defecto
+    active: Los idiomas inactivos no están disponibles en el sitio
+    
+translations:
+  title: Gestión de Traducciones
+  list_title: Archivos de Traducción
+  edit_title: Editar Traducciones
+  domain: Dominio
+  locale: Idioma
+  file: Archivo
+  keys: Claves
+  actions:
+    edit: Editar
+    refresh: Actualizar
+    export: Exportar
+    import: Importar
+  messages:
+    updated: Traducciones actualizadas exitosamente
+    exported: Traducciones exportadas exitosamente
+    imported: Traducciones importadas exitosamente
+  help:
+    domain_info: Los dominios permiten organizar las traducciones por sección
+    key_format: "Usa notación de puntos para organizar las claves (ej: menu.home)"
+    fallback: Si falta una traducción, se usará el idioma por defecto
+
+language:
+  change_interface: Cambiar idioma de la interfaz
+  switch_error: Error al cambiar idioma
+
+forms:
+  language:
+    code:
+      label: Código del idioma
+      help: "Código ISO del idioma (ej: fr, en, es, de)"
+      placeholder: es
+    name:
+      label: Nombre del idioma
+      help: Nombre del idioma en español
+      placeholder: Español
+    native_name:
+      label: Nombre nativo
+      help: Nombre del idioma en su idioma nativo
+      placeholder: Español
+    is_active:
+      label: Idioma activo
+      help: Desmarque para desactivar este idioma
+    is_default:
+      label: Idioma por defecto
+      help: Marque para establecer este idioma como predeterminado
+    sort_order:
+      label: Orden de visualización
+      help: "Orden de visualización de idiomas (menor = mostrado primero)"
+  service:
+    slug:
+      label: Slug
+      help: "Identificador único para URL (generado automáticamente si está vacío)"
+      placeholder: mi-servicio
+    is_active:
+      label: Servicio activo
+      help: Desmarque para desactivar este servicio
+    sort_order:
+      label: Orden de visualización
+      help: "Orden de visualización de servicios (menor = mostrado primero)"
+  service_translation:
+    title:
+      label: Título
+      placeholder: Título del servicio
+    description:
+      label: Descripción
+      placeholder: Descripción corta del servicio
+    detail:
+      label: Detalles
+      placeholder: Descripción detallada del servicio
+    language:
+      label: Idioma
+      placeholder: Seleccione un idioma
+
+common:
+  actions:
+    title: Acciones
+    save: Guardar
+    cancel: Cancelar
+    delete: Eliminar
+    edit: Editar
+    view: Ver
+    back: Volver
+    close: Cerrar
+    confirm: Confirmar
+    yes: Sí
+    no: No
+    new_language: Nuevo idioma

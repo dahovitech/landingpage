@@ -1,0 +1,70 @@
+# Ignorer les fichiers et dossiers générés par Composer
+/vendor/
+/composer.lock
+
+# Ignorer les fichiers de cache et de logs
+/var/
+
+# Ignorer les fichiers de configuration sensibles
+/.env
+/.env.local
+/.env.*.local
+/.env.test
+/.env.development.local
+/.env.dev.local
+/.env.production.local
+/.env.pro.local
+
+# Ignorer les fichiers de build et de déploiement
+/public/bundles/
+/public/build/
+/public/uploads/*
+!/public/uploads/.gitkeep
+!/public/.htaccess
+
+# Ignorer les fichiers temporaires
+*.cache
+*.log
+*.swp
+*.swo
+*.bak
+*.backup
+*.pid
+*.sock
+*.sqlite
+
+# Ignorer les dossiers de tests générés
+/var/coverage/
+/phpunit.xml
+
+# Ignorer les fichiers d'éditeur/IDE
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Ignorer les fichiers de système d'exploitation
+.DS_Store
+Thumbs.db
+
+# Ignorer les fichiers de tests locaux
+/tests/bootstrap.php.cache
+/coverage/
+
+# Ignorer les fichiers de dépendances npm/yarn (si vous utilisez Webpack Encore)
+/node_modules/
+/package-lock.json
+/yarn.lock
+/public/build/*
+!/public/build/.gitkeep
+
+# Ignorer les fichiers de documentation générés
+/docs/_build/
+
+# Ignorer les fichiers de dump de base de données
+*.sql
+*.sql.gz
+
+# Ignorer les fichiers temporaires de PHPUnit
+/phpunit
+/.htaccess

@@ -1,0 +1,140 @@
+{% extends 'frontend/base.html.twig' %}
+
+{% block title %}{{ 'services.page_title'|trans }} - {{ parent() }}{% endblock %}
+
+{% block meta_description %}{{ 'services.meta_description'|trans }}{% endblock %}
+
+{% block body %}
+<div class="container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="my-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{{ path('frontend_homepage', {'_locale': locale}) }}">{{ 'navigation.home'|trans }}</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                {{ 'navigation.services'|trans }}
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center mb-5">
+                <h1 class="display-4 mb-3">{{ 'services.page_title'|trans }}</h1>
+                <p class="lead text-muted">{{ 'services.page_subtitle'|trans }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Services Grid -->
+    {% if services is not empty %}
+        <div class="row">
+            {% for serviceData in services %}
+                {% set service = serviceData.service %}
+                {% set translation = serviceData.translation %}
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card h-100 service-card">
+                        {% if service.image %}
+                            <div class="card-img-wrapper">
+                                <img src="/{{ service.image.webPath }}" 
+                                     class="card-img-top" 
+                                     alt="{{ translation.title }}"
+                                     loading="lazy">
+                            </div>
+                        {% endif %}
+                        
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">{{ translation.title }}</h5>
+                            
+                            {% if translation.description %}
+                                <p class="card-text flex-grow-1">
+                                    {{ translation.description|length > 150 ? translation.description|slice(0, 150) ~ '...' : translation.description }}
+                                </p>
+                            {% endif %}
+                            
+                            <div class="mt-auto">
+                                <a href="{{ path('frontend_service_show', {'_locale': locale, 'slug': service.slug}) }}" 
+                                   class="btn btn-primary">
+                                    {{ 'services.read_more'|trans }}
+                                    <i class="bi bi-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- No Services Available -->
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <i class="bi bi-box-seam fa-3x text-muted mb-4"></i>
+                    <h3 class="text-muted">{{ 'services.no_services'|trans }}</h3>
+                    <p class="text-muted">{{ 'services.no_services_description'|trans }}</p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Language Notice -->
+    {% if currentLanguage and not currentLanguage.isDefault %}
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="alert alert-info" role="alert">
+                    <i class="bi bi-info-circle me-2"></i>
+                    {{ 'services.language_notice'|trans({'%language%': currentLanguage.nativeName}) }}
+                    <a href="{{ path('frontend_services_index', {'_locale': 'fr'}) }}" class="alert-link">
+                        {{ 'services.view_in_default'|trans }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .service-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .card-img-wrapper {
+            height: 200px;
+            overflow: hidden;
+        }
+        
+        .card-img-wrapper img {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .service-card:hover .card-img-wrapper img {
+            transform: scale(1.05);
+        }
+        
+        .breadcrumb {
+            background: none;
+            padding: 0;
+        }
+        
+        @media (max-width: 768px) {
+            .display-4 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+{% endblock %}

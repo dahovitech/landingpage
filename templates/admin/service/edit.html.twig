@@ -1,0 +1,315 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Éditer Service - {{ service.title }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3">Éditer Service: {{ service.title }}</h1>
+                <div>
+                    <a href="{{ path('admin_service_show', {id: service.id}) }}" class="btn btn-info btn-sm me-2">
+                        <i class="bi bi-eye"></i> Voir
+                    </a>
+                    <a href="{{ path('admin_service_index') }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Retour
+                    </a>
+                </div>
+            </div>
+
+            <form method="post" class="needs-validation" novalidate>
+                <div class="row">
+                    <!-- Service Configuration -->
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Configuration du Service</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="slug" class="form-label">Slug (URL)</label>
+                                    <input type="text" class="form-control" id="slug" name="slug" 
+                                           value="{{ service.slug }}" required>
+                                    <div class="form-text">URL: /service/{{ service.slug }}</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="sortOrder" class="form-label">Ordre de tri</label>
+                                    <input type="number" class="form-control" id="sortOrder" name="sortOrder" 
+                                           value="{{ service.sortOrder }}" min="0">
+                                </div>
+
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="isActive" 
+                                               name="isActive" value="1" 
+                                               {{ service.isActive ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="isActive">
+                                            Service actif
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Sélecteur d'image -->
+                                {% include 'components/media_selector.html.twig' with {
+                                    'selectedMedia': service.image,
+                                    'inputName': 'imageId',
+                                    'label': 'Image du service'
+                                } %}
+
+                                <hr>
+
+                                <div class="mb-3">
+                                    <h6>Statistiques des traductions</h6>
+                                    {% set translationStatus = service.translationStatus %}
+                                    {% for languageCode, status in translationStatus %}
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span>{{ status.translation.language.nativeName }}</span>
+                                            {% if status.complete %}
+                                                <span class="badge bg-success">Complet</span>
+                                            {% elseif status.partial %}
+                                                <span class="badge bg-warning">Partiel</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Vide</span>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Translation Tools -->
+                        <div class="card mt-3">
+                            <div class="card-header">
+                                <h6 class="mb-0">Outils de traduction</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Dupliquer traduction</label>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <select id="sourceLanguage" class="form-select form-select-sm">
+                                                <option value="">De...</option>
+                                                {% for language in languages %}
+                                                    {% if service.hasTranslation(language.code) %}
+                                                        <option value="{{ language.code }}">{{ language.nativeName }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-6">
+                                            <select id="targetLanguage" class="form-select form-select-sm">
+                                                <option value="">Vers...</option>
+                                                {% for language in languages %}
+                                                    <option value="{{ language.code }}">{{ language.nativeName }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <button type="button" id="duplicateBtn" class="btn btn-sm btn-outline-primary mt-2 w-100">
+                                        <i class="bi bi-copy"></i> Dupliquer
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Translations -->
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Traductions</h5>
+                            </div>
+                            <div class="card-body">
+                                <!-- Language Tabs -->
+                                <ul class="nav nav-tabs" id="languageTabs" role="tablist">
+                                    {% for language in languages %}
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link {{ loop.first ? 'active' : '' }}" 
+                                                    id="{{ language.code }}-tab" 
+                                                    data-bs-toggle="tab" 
+                                                    data-bs-target="#{{ language.code }}-content" 
+                                                    type="button" role="tab">
+                                                {{ language.nativeName }}
+                                                {% if language.isDefault %}
+                                                    <span class="badge bg-primary ms-1">Défaut</span>
+                                                {% endif %}
+                                                {% set translation = service.getTranslation(language.code) %}
+                                                {% if translation %}
+                                                    {% if translation.isComplete %}
+                                                        <i class="bi bi-check-circle text-success ms-1"></i>
+                                                    {% elseif translation.isPartial %}
+                                                        <i class="bi bi-exclamation-circle text-warning ms-1"></i>
+                                                    {% else %}
+                                                        <i class="bi bi-circle text-muted ms-1"></i>
+                                                    {% endif %}
+                                                {% else %}
+                                                    <i class="bi bi-plus-circle text-muted ms-1"></i>
+                                                {% endif %}
+                                            </button>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+
+                                <!-- Language Content -->
+                                <div class="tab-content" id="languageTabsContent">
+                                    {% for language in languages %}
+                                        {% set translation = service.getTranslation(language.code) %}
+                                        <div class="tab-pane fade {{ loop.first ? 'show active' : '' }}" 
+                                             id="{{ language.code }}-content" 
+                                             role="tabpanel">
+                                            <div class="p-3">
+                                                <div class="mb-3">
+                                                    <label for="title_{{ language.code }}" class="form-label">
+                                                        Titre *
+                                                    </label>
+                                                    <input type="text" 
+                                                           class="form-control" 
+                                                           id="title_{{ language.code }}" 
+                                                           name="translations[{{ language.code }}][title]" 
+                                                           value="{{ translation ? translation.title : '' }}"
+                                                           required>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label for="description_{{ language.code }}" class="form-label">
+                                                        Description
+                                                    </label>
+                                                    <textarea class="form-control" 
+                                                              id="description_{{ language.code }}" 
+                                                              name="translations[{{ language.code }}][description]" 
+                                                              rows="5">{{ translation ? translation.description : '' }}</textarea>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="mb-3">
+                                                            <label for="metaTitle_{{ language.code }}" class="form-label">
+                                                                Méta titre (SEO)
+                                                            </label>
+                                                            <input type="text" 
+                                                                   class="form-control" 
+                                                                   id="metaTitle_{{ language.code }}" 
+                                                                   name="translations[{{ language.code }}][metaTitle]" 
+                                                                   value="{{ translation ? translation.metaTitle : '' }}"
+                                                                   maxlength="60">
+                                                            <div class="form-text">Recommandé: 50-60 caractères</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="mb-3">
+                                                            <label for="metaDescription_{{ language.code }}" class="form-label">
+                                                                Méta description (SEO)
+                                                            </label>
+                                                            <textarea class="form-control" 
+                                                                      id="metaDescription_{{ language.code }}" 
+                                                                      name="translations[{{ language.code }}][metaDescription]" 
+                                                                      rows="3" 
+                                                                      maxlength="160">{{ translation ? translation.metaDescription : '' }}</textarea>
+                                                            <div class="form-text">Recommandé: 150-160 caractères</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {% if translation %}
+                                                    <div class="row">
+                                                        <div class="col-12">
+                                                            <small class="text-muted">
+                                                                Dernière modification: {{ translation.updatedAt|date('d/m/Y H:i') }}
+                                                            </small>
+                                                        </div>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{{ path('admin_service_index') }}" class="btn btn-secondary">Annuler</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-floppy"></i> Enregistrer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Duplicate translation functionality
+document.getElementById('duplicateBtn').addEventListener('click', function() {
+    const sourceLanguage = document.getElementById('sourceLanguage').value;
+    const targetLanguage = document.getElementById('targetLanguage').value;
+    
+    if (!sourceLanguage || !targetLanguage) {
+        alert('Veuillez sélectionner les langues source et cible.');
+        return;
+    }
+    
+    if (sourceLanguage === targetLanguage) {
+        alert('Les langues source et cible doivent être différentes.');
+        return;
+    }
+    
+    fetch('{{ path('admin_service_duplicate_translation', {id: service.id}) }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+            source_language: sourceLanguage,
+            target_language: targetLanguage
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Traduction dupliquée avec succès!');
+            location.reload();
+        } else {
+            alert('Erreur: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Erreur lors de la duplication.');
+    });
+});
+
+// Character counters for meta fields
+function addCharacterCounter(inputId, maxLength) {
+    const input = document.getElementById(inputId);
+    if (input) {
+        const counter = document.createElement('small');
+        counter.className = 'text-muted';
+        input.parentNode.appendChild(counter);
+        
+        function updateCounter() {
+            const remaining = maxLength - input.value.length;
+            counter.textContent = `${input.value.length}/${maxLength} caractères`;
+            counter.classList.toggle('text-warning', remaining < 10);
+            counter.classList.toggle('text-danger', remaining < 0);
+        }
+        
+        input.addEventListener('input', updateCounter);
+        updateCounter();
+    }
+}
+
+// Add counters for meta fields
+{% for language in languages %}
+addCharacterCounter('metaTitle_{{ language.code }}', 60);
+addCharacterCounter('metaDescription_{{ language.code }}', 160);
+{% endfor %}
+</script>
+{% endblock %}

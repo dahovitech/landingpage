@@ -1,0 +1,36 @@
+# Frontend Service Routes
+frontend_service_routes:
+    resource: '../../src/Controller/FrontendServiceController.php'
+    type: attribute
+
+# Homepage with locale
+frontend_homepage:
+    path: /{_locale}
+    controller: App\Controller\FrontController::homepage
+    requirements:
+        _locale: '[a-z]{2}'
+    defaults:
+        _locale: 'fr'
+
+# Default homepage redirect
+homepage_redirect:
+    path: /
+    controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController::redirectAction
+    defaults:
+        route: frontend_homepage
+        _locale: fr
+        permanent: false
+
+# Contact page
+frontend_contact:
+    path: /{_locale}/contact
+    controller: App\Controller\FrontController::contact
+    requirements:
+        _locale: '[a-z]{2}'
+
+# About page
+frontend_about:
+    path: /{_locale}/about
+    controller: App\Controller\FrontController::about
+    requirements:
+        _locale: '[a-z]{2}'

@@ -1,0 +1,164 @@
+# Administration Interface - English
+navigation:
+  dashboard: Dashboard
+  services: Services
+  media: Media Manager
+  languages: Languages
+  translations: Translations
+  settings: Settings
+  logout: Logout
+
+dashboard:
+  title: Dashboard
+  welcome: Welcome to LandingPageCms Administration
+  statistics: Statistics
+  recent_activity: Recent Activity
+  quick_actions: Quick Actions
+  total_languages: Configured Languages
+  translation_progress: Translation Progress
+  manage_languages: Manage languages
+  languages_count: Languages
+  translations_count: Translations
+  completion: Completion
+  view_all: View All
+  configured_languages: Configured Languages
+  manage: Manage
+  no_language_configured: No languages configured
+  add_language: Add Language
+  updated: Updated
+  slug: Slug
+  status: Status
+
+languages:
+  title: Language Management
+  list_title: Language List
+  new_title: New Language
+  edit_title: Edit Language
+  show_title: Language Details
+  fields:
+    name: Name
+    code: Code
+    native_name: Native Name
+    default: Default
+    active: Active
+    created_at: Created At
+    updated_at: Updated At
+  actions:
+    new: New Language
+    edit: Edit
+    delete: Delete
+    show: Show Details
+    set_default: Set as Default
+    activate: Activate
+    deactivate: Deactivate
+    back_to_list: Back to List
+  messages:
+    created: Language created successfully
+    updated: Language updated successfully
+    deleted: Language deleted successfully
+    set_as_default: Language set as default
+    activated: Language activated
+    deactivated: Language deactivated
+    confirm_delete: Are you sure you want to delete this language?
+    no_languages: No languages configured
+    create_first: Create the first language
+  help:
+    code: "ISO language code (ex: fr, en, es)"
+    native_name: Language name in its native language
+    default: Only one language can be set as default
+    active: Inactive languages are not available on the site
+
+translations:
+  title: Translation Management
+  list_title: Translation Files
+  edit_title: Edit Translations
+  domain: Domain
+  locale: Locale
+  file: File
+  keys: Keys
+  actions:
+    edit: Edit
+    refresh: Refresh
+    export: Export
+    import: Import
+  messages:
+    updated: Translations updated successfully
+    exported: Translations exported successfully
+    imported: Translations imported successfully
+  help:
+    domain_info: Domains allow organizing translations by section
+    key_format: "Use dot notation to organize keys (ex: menu.home)"
+    fallback: If a translation is missing, the default language will be used
+
+language:
+  change_interface: Change interface language
+  switch_error: Error switching language
+
+forms:
+  language:
+    code:
+      label: Language code
+      help: "ISO language code (eg: fr, en, es, de)"
+      placeholder: en
+    name:
+      label: Language name
+      help: Language name in English
+      placeholder: English
+    native_name:
+      label: Native name
+      help: Language name in its native language
+      placeholder: English
+    is_active:
+      label: Active language
+      help: Uncheck to disable this language
+    is_default:
+      label: Default language
+      help: Check to set this language as default
+    sort_order:
+      label: Display order
+      help: "Display order of languages (smaller = displayed first)"
+
+common:
+  actions:
+    title: Actions
+    save: Save
+    cancel: Cancel
+    delete: Delete
+    edit: Edit
+    view: View
+    back: Back
+    close: Close
+    confirm: Confirm
+    yes: Yes
+    no: No
+    new_language: New Language
+    view_site: View Site
+    actions: Actions
+  status:
+    active: Active
+    inactive: Inactive
+    enabled: Enabled
+    disabled: Disabled
+    published: Published
+    draft: Draft
+    default: Default
+  messages:
+    success: Operation completed successfully
+    error: An error occurred
+    confirm_action: Are you sure you want to perform this action?
+    no_results: No results found
+    loading: Loading...
+  form:
+    required: This field is required
+    invalid: This field is not valid
+    too_short: This field is too short
+    too_long: This field is too long
+    invalid_email: Invalid email address
+    invalid_url: Invalid URL
+  time:
+    just_now: Just now
+    minutes_ago: '%count% minutes ago'
+    hours_ago: '%count% hours ago'
+    days_ago: '%count% days ago'
+    weeks_ago: '%count% weeks ago'
+    months_ago: '%count% months ago'

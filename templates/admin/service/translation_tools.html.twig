@@ -1,0 +1,227 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Outils de Traduction{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3">Outils de Traduction</h1>
+                <a href="{{ path('admin_service_index') }}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Retour aux services
+                </a>
+            </div>
+
+            <!-- Statistics Overview -->
+            <div class="row mb-4">
+                {% for languageCode, stats in statistics %}
+                <div class="col-md-3 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h6 class="card-title mb-1">{{ stats.language.nativeName }}</h6>
+                                    <small class="text-muted">{{ stats.language.code|upper }}</small>
+                                </div>
+                                <div class="text-end">
+                                    <h4 class="text-primary mb-0">{{ stats.completion_percentage }}%</h4>
+                                </div>
+                            </div>
+                            
+                            <div class="progress mb-3" style="height: 8px;">
+                                <div class="progress-bar" role="progressbar" 
+                                     style="width: {{ stats.completion_percentage }}%"
+                                     aria-valuenow="{{ stats.completion_percentage }}" 
+                                     aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            
+                            <div class="row text-center">
+                                <div class="col-4">
+                                    <small class="text-muted d-block">Traduits</small>
+                                    <strong class="text-success">{{ stats.translated }}</strong>
+                                </div>
+                                <div class="col-4">
+                                    <small class="text-muted d-block">Complets</small>
+                                    <strong class="text-info">{{ stats.complete }}</strong>
+                                </div>
+                                <div class="col-4">
+                                    <small class="text-muted d-block">Manquants</small>
+                                    <strong class="text-warning">{{ stats.missing }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="row">
+                <!-- Bulk Translation Tools -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-plus-circle text-success"></i>
+                                Créer des traductions manquantes
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted">
+                                Crée automatiquement des traductions vides ou copiées depuis une langue source 
+                                pour tous les services qui n'ont pas encore de traduction dans la langue cible.
+                            </p>
+                            
+                            <form method="post">
+                                <input type="hidden" name="action" value="create_missing">
+                                
+                                <div class="mb-3">
+                                    <label for="target_language_create" class="form-label">Langue cible *</label>
+                                    <select class="form-select" id="target_language_create" name="target_language" required>
+                                        <option value="">Sélectionnez une langue...</option>
+                                        {% for language in languages %}
+                                            <option value="{{ language.code }}">{{ language.nativeName }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="source_language_create" class="form-label">Langue source (optionnel)</label>
+                                    <select class="form-select" id="source_language_create" name="source_language">
+                                        <option value="">Créer des traductions vides</option>
+                                        {% for language in languages %}
+                                            <option value="{{ language.code }}" {{ language.isDefault ? 'selected' : '' }}>
+                                                Copier depuis {{ language.nativeName }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                    <div class="form-text">
+                                        Si sélectionné, les traductions seront copiées depuis cette langue comme base de travail.
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-success" 
+                                        onclick="return confirm('Voulez-vous vraiment créer les traductions manquantes ?')">
+                                    <i class="bi bi-plus"></i> Créer les traductions
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cleanup Tools -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-trash text-danger"></i>
+                                Supprimer toutes les traductions
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted">
+                                Supprime toutes les traductions existantes pour une langue spécifique. 
+                                <strong class="text-danger">Cette action est irréversible !</strong>
+                            </p>
+                            
+                            <form method="post">
+                                <input type="hidden" name="action" value="remove_all">
+                                
+                                <div class="mb-3">
+                                    <label for="target_language_remove" class="form-label">Langue à supprimer *</label>
+                                    <select class="form-select" id="target_language_remove" name="target_language" required>
+                                        <option value="">Sélectionnez une langue...</option>
+                                        {% for language in languages %}
+                                            {% if not language.isDefault %}
+                                                <option value="{{ language.code }}">{{ language.nativeName }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                    <div class="form-text text-danger">
+                                        La langue par défaut ne peut pas être supprimée.
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-danger" 
+                                        onclick="return confirm('ATTENTION: Vous êtes sur le point de supprimer TOUTES les traductions de cette langue. Cette action est IRRÉVERSIBLE. Êtes-vous absolument sûr ?')">
+                                    <i class="bi bi-trash"></i> Supprimer toutes les traductions
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advanced Tools -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-gear"></i>
+                                Outils avancés
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <h6>Export des traductions</h6>
+                                    <p class="text-muted small">
+                                        Exporter toutes les traductions dans un format CSV pour modification externe.
+                                    </p>
+                                    <button class="btn btn-outline-primary btn-sm" disabled>
+                                        <i class="bi bi-download"></i> Exporter CSV
+                                    </button>
+                                    <small class="text-muted d-block mt-1">Prochainement disponible</small>
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    <h6>Import de traductions</h6>
+                                    <p class="text-muted small">
+                                        Importer des traductions depuis un fichier CSV ou un service de traduction.
+                                    </p>
+                                    <button class="btn btn-outline-secondary btn-sm" disabled>
+                                        <i class="bi bi-upload"></i> Importer CSV
+                                    </button>
+                                    <small class="text-muted d-block mt-1">Prochainement disponible</small>
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    <h6>Synchronisation API</h6>
+                                    <p class="text-muted small">
+                                        Synchroniser avec des services de traduction automatique (Google Translate, DeepL).
+                                    </p>
+                                    <button class="btn btn-outline-info btn-sm" disabled>
+                                        <i class="bi bi-arrow-clockwise"></i> Configurer API
+                                    </button>
+                                    <small class="text-muted d-block mt-1">Prochainement disponible</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Prevent accidental form submission
+document.addEventListener('DOMContentLoaded', function() {
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const action = this.querySelector('input[name="action"]').value;
+            if (action === 'remove_all') {
+                // Double confirmation for destructive actions
+                setTimeout(() => {
+                    if (!confirm('DERNIÈRE CONFIRMATION: Cette action supprimera définitivement toutes les traductions. Continuer ?')) {
+                        e.preventDefault();
+                    }
+                }, 100);
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

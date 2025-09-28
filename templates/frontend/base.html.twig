@@ -1,0 +1,198 @@
+{% extends 'base.html.twig' %}
+
+{% block header %}
+    {# Frontend Header #}
+    <header class="frontend-header">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+            <div class="container">
+                {# Brand Logo #}
+                <a class="navbar-brand fw-bold" href="{{ path('frontend_homepage', {'_locale': app.request.locale}) }}">
+                    <i class="bi bi-star-fill text-primary me-2"></i>LandingPageCms
+                </a>
+
+                {# Mobile Toggle Button #}
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                {# Main Navigation #}
+                <div class="collapse navbar-collapse" id="navbarMain">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link{% if app.request.get('_route') == 'frontend_homepage' %} active{% endif %}" 
+                               href="{{ path('frontend_homepage', {'_locale': app.request.locale}) }}">
+                                <i class="bi bi-house me-1"></i>{{ 'navigation.home'|trans }}
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link{% if app.request.get('_route') starts with 'frontend_services_' %} active{% endif %}" 
+                               href="{{ path('frontend_services_index', {'_locale': app.request.locale}) }}">
+                                <i class="bi bi-grid-3x3-gap me-1"></i>{{ 'navigation.services'|trans }}
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link{% if app.request.get('_route') == 'frontend_contact' %} active{% endif %}" 
+                               href="{{ path('frontend_contact', {'_locale': app.request.locale}) }}">
+                                <i class="bi bi-envelope me-1"></i>{{ 'navigation.contact'|trans }}
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link{% if app.request.get('_route') == 'frontend_about' %} active{% endif %}" 
+                               href="{{ path('frontend_about', {'_locale': app.request.locale}) }}">
+                                <i class="bi bi-info-circle me-1"></i>{{ 'navigation.about'|trans }}
+                            </a>
+                        </li>
+                    </ul>
+
+                    {# Language Selector #}
+                    {% if languages is defined and languages|length > 1 %}
+                        <div class="dropdown">
+                            <button class="btn btn-outline-primary dropdown-toggle" type="button" 
+                                    id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false"
+                                    title="{{ 'language.change'|trans }}">
+                                <i class="bi bi-translate me-1"></i>
+                                <span>{{ app.request.locale|upper }}</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
+                                {% for language in languages %}
+                                    <li>
+                                        <a class="dropdown-item{{ app.request.locale == language.code ? ' active' : '' }}" 
+                                           href="{{ path(app.request.get('_route'), app.request.get('_route_params')|merge({'_locale': language.code})) }}">
+                                            <span class="badge bg-primary me-2">{{ language.code|upper }}</span>
+                                            {{ language.nativeName }}
+                                            {% if language.isDefault() %}
+                                                <i class="bi bi-star-fill text-warning ms-1" title="{{ 'language.default'|trans }}"></i>
+                                            {% endif %}
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </nav>
+    </header>
+{% endblock %}
+
+{% block footer %}
+    {# Frontend Footer #}
+    <footer class="frontend-footer bg-dark text-light mt-auto">
+        <div class="container py-4">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="fw-bold mb-3">
+                        <i class="bi bi-star-fill text-primary me-2"></i>LandingPageCms
+                    </h5>
+                    <p class="text-muted">{{ 'footer.description'|trans }}</p>
+                </div>
+                <div class="col-md-3">
+                    <h6 class="fw-bold mb-3">{{ 'footer.quick_links'|trans }}</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <a href="{{ path('frontend_services_index', {'_locale': app.request.locale}) }}" 
+                               class="text-muted text-decoration-none">
+                                {{ 'navigation.services'|trans }}
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{{ path('frontend_contact', {'_locale': app.request.locale}) }}" 
+                               class="text-muted text-decoration-none">
+                                {{ 'navigation.contact'|trans }}
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{{ path('frontend_about', {'_locale': app.request.locale}) }}" 
+                               class="text-muted text-decoration-none">
+                                {{ 'navigation.about'|trans }}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h6 class="fw-bold mb-3">{{ 'footer.languages'|trans }}</h6>
+                    {% if languages is defined and languages|length > 0 %}
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for language in languages %}
+                                <a href="{{ path(app.request.get('_route'), app.request.get('_route_params')|merge({'_locale': language.code})) }}" 
+                                   class="badge {{ app.request.locale == language.code ? 'bg-primary' : 'bg-secondary' }} text-decoration-none">
+                                    {{ language.code|upper }}
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="text-muted small mb-0">&copy; {{ 'now'|date('Y') }} LandingPageCms. {{ 'footer.rights'|trans }}</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <small class="text-muted">{{ 'footer.powered_by'|trans }} 
+                        <a href="https://symfony.com" target="_blank" class="text-primary text-decoration-none">Symfony</a>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </footer>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        /* Frontend specific styles */
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .frontend-header .navbar-brand {
+            font-size: 1.5rem;
+        }
+        
+        .frontend-header .nav-link.active {
+            color: var(--bs-primary) !important;
+            font-weight: 500;
+        }
+        
+        main {
+            flex: 1;
+        }
+        
+        .frontend-footer {
+            margin-top: auto;
+        }
+        
+        .frontend-footer a:hover {
+            color: var(--bs-primary) !important;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .frontend-header .navbar-brand {
+                font-size: 1.25rem;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block extra_javascripts %}
+    <script>
+        // Auto-hide alerts after 5 seconds
+        document.addEventListener("DOMContentLoaded", function() {
+            const alerts = document.querySelectorAll(".alert:not(.alert-permanent)")
+            alerts.forEach(function(alert) {
+                setTimeout(function() {
+                    if (typeof window.bootstrap !== 'undefined' && window.bootstrap.Alert) {
+                        const bsAlert = new window.bootstrap.Alert(alert)
+                        bsAlert.close()
+                    } else {
+                        alert.remove()
+                    }
+                }, 5000)
+            })
+        })
+    </script>
+{% endblock %}

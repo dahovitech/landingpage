@@ -1,0 +1,108 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Nouvelle langue - Administration - LandingPageCms{% endblock %}
+
+{% block body %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="bi bi-plus-circle me-2 text-success"></i>Nouvelle langue
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{{ path('admin_language_index') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Retour à la liste
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                {{ form_start(form) }}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form_row(form.code, {
+                                attr: {'class': 'form-control', 'placeholder': 'fr'}
+                            }) }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form_row(form.sortOrder, {
+                                attr: {'class': 'form-control', 'value': '0'}
+                            }) }}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form_row(form.name, {
+                                attr: {'class': 'form-control', 'placeholder': 'Français'}
+                            }) }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form_row(form.nativeName, {
+                                attr: {'class': 'form-control', 'placeholder': 'Français'}
+                            }) }}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check">
+                                {{ form_widget(form.isActive, {'attr': {'class': 'form-check-input'}}) }}
+                                {{ form_label(form.isActive, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                            </div>
+                            <small class="form-text text-muted">{{ form.isActive.vars.help }}</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check">
+                                {{ form_widget(form.isDefault, {'attr': {'class': 'form-check-input'}}) }}
+                                {{ form_label(form.isDefault, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                            </div>
+                            <small class="form-text text-muted">{{ form.isDefault.vars.help }}</small>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-success me-2">
+                            <i class="bi bi-check-lg me-2"></i>Créer la langue
+                        </button>
+                        <a href="{{ path('admin_language_index') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-lg me-2"></i>Annuler
+                        </a>
+                    </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="bi bi-info-circle me-2"></i>Conseils
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2">
+                        <i class="bi bi-check-circle text-success me-2"></i>
+                        <strong>Code :</strong> Utilisez le code ISO 639-1 (ex: fr, en, es)
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-check-circle text-success me-2"></i>
+                        <strong>Nom :</strong> Le nom de la langue en français
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-check-circle text-success me-2"></i>
+                        <strong>Nom natif :</strong> Le nom dans la langue native
+                    </li>
+                    <li class="mb-0">
+                        <i class="bi bi-check-circle text-success me-2"></i>
+                        <strong>Ordre :</strong> Plus le nombre est petit, plus la langue apparaît en premier
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

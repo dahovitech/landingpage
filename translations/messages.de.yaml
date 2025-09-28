@@ -1,0 +1,28 @@
+# Services translations (German)
+services:
+  page_title: "Unsere Dienstleistungen"
+  page_subtitle: "Entdecken Sie unsere maßgeschneiderten digitalen Lösungen"
+  meta_description: "Entdecken Sie unsere digitalen Dienstleistungen: Webentwicklung, mobile Anwendungen, digitales Marketing und E-Commerce-Lösungen."
+  read_more: "Mehr erfahren"
+  no_services: "Keine Dienstleistungen verfügbar"
+  no_services_description: "Wir arbeiten derzeit an neuen Dienstleistungen. Schauen Sie bald wieder vorbei!"
+  language_notice: "Sie betrachten diese Seite auf %language%. Einige Inhalte sind möglicherweise nicht übersetzt."
+  view_in_default: "Auf Französisch anzeigen"
+
+service:
+  back_to_services: "Zurück zu Dienstleistungen"
+  interested: "Interessiert an dieser Dienstleistung?"
+  contact_description: "Kontaktieren Sie uns, um Ihr Projekt zu besprechen und ein personalisiertes Angebot zu erhalten."
+  contact_us: "Kontaktieren Sie uns"
+  other_services: "Andere Dienstleistungen"
+  available_languages: "Diese Dienstleistung ist in folgenden Sprachen verfügbar:"
+  loading_other_services: "Laden andere Dienstleistungen..."
+  no_other_services: "Keine anderen Dienstleistungen verfügbar"
+  error_loading_services: "Fehler beim Laden der Dienstleistungen"
+
+navigation:
+  home: "Startseite"
+  services: "Dienstleistungen"
+  about: "Über uns"
+  contact: "Kontakt"
+  language_selector: "Sprache ändern"

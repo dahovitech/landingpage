@@ -1,0 +1,141 @@
+# Services translations (English)
+services:
+  page_title: "Our Services"
+  page_subtitle: "Discover our tailor-made digital solutions"
+  meta_description: "Discover our digital services: web development, mobile applications, digital marketing and e-commerce solutions."
+  read_more: "Learn more"
+  no_services: "No services available"
+  no_services_description: "We are currently working on new services. Come back soon!"
+  language_notice: "You are viewing this page in %language%. Some content may not be translated."
+  view_in_default: "View in French"
+
+service:
+  back_to_services: "Back to services"
+  interested: "Interested in this service?"
+  contact_description: "Contact us to discuss your project and get a personalized quote."
+  contact_us: "Contact us"
+  other_services: "Other services"
+  available_languages: "This service is available in the following languages:"
+  loading_other_services: "Loading other services..."
+  no_other_services: "No other services available"
+  error_loading_services: "Error loading services"
+
+navigation:
+  home: "Home"
+  services: "Services"
+  about: "About"
+  contact: "Contact"
+  language_selector: "Change language"
+
+# Homepage translations
+homepage:
+  title: "Welcome to LandingPageCms"
+  meta_description: "LandingPageCms - Innovative digital solutions for your business. Discover our web, mobile and marketing services."
+  hero:
+    title: "Innovative Digital Solutions"
+    subtitle: "We create exceptional digital experiences that transform your vision into reality."
+    discover_services: "Discover our services"
+    contact_us: "Contact us"
+  features:
+    title: "Why Choose LandingPageCms?"
+    subtitle: "We stand out through our expertise and personalized approach"
+    fast:
+      title: "Fast"
+      description: "Solutions developed quickly without compromising on quality."
+    secure:
+      title: "Secure"
+      description: "Enhanced security to protect your data and your customers' data."
+    support:
+      title: "24/7 Support"
+      description: "A dedicated team at your service for all your needs."
+  services:
+    title: "Our Popular Services"
+    subtitle: "Discover our most requested solutions"
+    loading: "Loading services..."
+    view_all: "View all our services"
+    learn_more: "Learn more"
+    no_services: "No services available"
+    no_services_description: "We are preparing new services for you."
+    error_loading: "Error loading"
+  cta:
+    title: "Ready to Start Your Project?"
+    subtitle: "Contact us today to discuss your needs and receive a personalized quote."
+    button: "Get started now"
+
+# Contact page translations
+contact:
+  title: "Contact Us"
+  subtitle: "We would love to discuss your project with you"
+  meta_description: "Contact the LandingPageCms team to discuss your digital solution needs. Free quote and personalized advice."
+  email:
+    title: "Email"
+    description: "Send us a message, we respond within 24h"
+  phone:
+    title: "Phone"
+    description: "Call us Monday to Friday from 9am to 6pm"
+  address:
+    title: "Address"
+    description: "Come visit us at our offices"
+  form:
+    title: "Send us a message"
+    first_name: "First name"
+    last_name: "Last name"
+    email: "Email address"
+    subject: "Subject"
+    message: "Message"
+    send: "Send message"
+    success_message: "Your message has been sent successfully! We will respond to you soon."
+
+# About page translations
+about:
+  title: "About LandingPageCms"
+  subtitle: "Discover our story, our mission and our passionate team"
+  meta_description: "Discover the LandingPageCms team, our mission and our values. Digital solution experts since 2020."
+  mission:
+    title: "Our Mission"
+    description: "At LandingPageCms, we strive to create innovative digital solutions that transform businesses and improve users' lives."
+    details: "Since our creation, we have helped over 100 companies digitize their processes and achieve their business goals through our tailor-made solutions."
+  values:
+    title: "Our Values"
+    subtitle: "The principles that guide our daily work"
+    innovation:
+      title: "Innovation"
+      description: "We stay at the forefront of technology to offer the best solutions."
+    passion:
+      title: "Passion"
+      description: "We love what we do and it shows in every project."
+    excellence:
+      title: "Excellence"
+      description: "We aim for excellence in every detail of our achievements."
+  team:
+    title: "Our Team"
+    subtitle: "The talents who bring your projects to life"
+    ceo:
+      name: "Marie Dupont"
+      title: "CEO"
+    cto:
+      name: "Pierre Martin"
+      title: "CTO"
+    designer:
+      name: "Sophie Leroy"
+      title: "Creative Director"
+    developer:
+      name: "Antoine Moreau"
+      title: "Senior Developer"
+  history:
+    title: "Our History"
+    description: "Founded in 2020, LandingPageCms was born from the desire to create digital solutions that really make a difference."
+    details: "Today, we are proud to have supported hundreds of companies in their digital transformation, from startups to large enterprises."
+  contact_us: "Contact us"
+
+# Language and general translations
+language:
+  change: "Change language"
+  default: "Default language"
+
+footer:
+  description: "Innovative digital solutions for your business."
+  quick_links: "Quick links"
+  languages: "Languages"
+  rights: "All rights reserved."
+  powered_by: "Powered by"

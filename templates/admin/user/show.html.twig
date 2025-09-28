@@ -1,0 +1,134 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}{{ user.fullName }} - Détails{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">Détails de {{ user.fullName }}</h1>
+                <div>
+                    <a href="{{ path('admin_user_edit', {'id': user.id}) }}" class="btn btn-primary me-2">
+                        <i class="bi bi-pencil"></i> Modifier
+                    </a>
+                    <a href="{{ path('admin_user_index') }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Retour à la liste
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Informations personnelles</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Prénom :</strong><br>
+                                    {{ user.firstName }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Nom :</strong><br>
+                                    {{ user.lastName }}</p>
+                                </div>
+                            </div>
+                            
+                            <p><strong>Email :</strong><br>
+                            <a href="mailto:{{ user.email }}">{{ user.email }}</a></p>
+                            
+                            <p><strong>Rôles :</strong><br>
+                            {% for role in user.roles %}
+                                {% if role == 'ROLE_SUPER_ADMIN' %}
+                                    <span class="badge bg-danger me-1">Super Administrateur</span>
+                                {% elseif role == 'ROLE_ADMIN' %}
+                                    <span class="badge bg-warning me-1">Administrateur</span>
+                                {% elseif role == 'ROLE_USER' %}
+                                    <span class="badge bg-info me-1">Utilisateur</span>
+                                {% else %}
+                                    <span class="badge bg-secondary me-1">{{ role }}</span>
+                                {% endif %}
+                            {% endfor %}
+                            </p>
+                            
+                            <p><strong>Statut :</strong><br>
+                            {% if user.isActive %}
+                                <span class="badge bg-success">Actif</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Inactif</span>
+                            {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Actions rapides</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a href="{{ path('admin_user_edit', {'id': user.id}) }}" class="btn btn-primary">
+                                    <i class="bi bi-pencil"></i> Modifier l'utilisateur
+                                </a>
+                                
+                                {% if user != app.user %}
+                                    <form method="post" action="{{ path('admin_user_toggle_active', {'id': user.id}) }}">
+                                        <button type="submit" 
+                                                class="btn btn-{% if user.isActive %}warning{% else %}success{% endif %} w-100"
+                                                onclick="return confirm('Êtes-vous sûr de vouloir {% if user.isActive %}désactiver{% else %}activer{% endif %} cet utilisateur ?')">
+                                            <i class="bi bi-{% if user.isActive %}ban{% else %}check{% endif %}"></i> 
+                                            {% if user.isActive %}Désactiver{% else %}Activer{% endif %}
+                                        </button>
+                                    </form>
+                                    
+                                    <form method="post" action="{{ path('admin_user_delete', {'id': user.id}) }}">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
+                                        <button type="submit" 
+                                                class="btn btn-danger w-100"
+                                                onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.')">
+                                            <i class="bi bi-trash"></i> Supprimer
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <div class="alert alert-info">
+                                        <i class="bi bi-info-circle"></i>
+                                        Vous consultez votre propre profil.
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Informations système</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>ID :</strong><br>
+                            {{ user.id }}</p>
+                            
+                            <p><strong>Créé le :</strong><br>
+                            {{ user.createdAt|date('d/m/Y à H:i') }}</p>
+                            
+                            <p><strong>Modifié le :</strong><br>
+                            {{ user.updatedAt|date('d/m/Y à H:i') }}</p>
+                            
+                            {% if user.lastLoginAt %}
+                                <p><strong>Dernière connexion :</strong><br>
+                                {{ user.lastLoginAt|date('d/m/Y à H:i') }}</p>
+                            {% else %}
+                                <p><strong>Dernière connexion :</strong><br>
+                                <em class="text-muted">Jamais connecté</em></p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

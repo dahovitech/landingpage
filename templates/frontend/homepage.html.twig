@@ -1,0 +1,249 @@
+{% extends 'frontend/base.html.twig' %}
+
+{% block title %}{{ 'homepage.title'|trans }} - {{ parent() }}{% endblock %}
+
+{% block meta_description %}{{ 'homepage.meta_description'|trans }}{% endblock %}
+
+{% block body %}
+    {# Hero Section #}
+    <section class="hero-section bg-primary text-white py-5">
+        <div class="container">
+            <div class="row align-items-center min-vh-50">
+                <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold mb-4">{{ 'homepage.hero.title'|trans }}</h1>
+                    <p class="lead mb-4">{{ 'homepage.hero.subtitle'|trans }}</p>
+                    <div class="d-flex flex-column flex-sm-row gap-3">
+                        <a href="{{ path('frontend_services_index', {'_locale': app.request.locale}) }}" 
+                           class="btn btn-light btn-lg">
+                            <i class="bi bi-grid-3x3-gap me-2"></i>{{ 'homepage.hero.discover_services'|trans }}
+                        </a>
+                        <a href="{{ path('frontend_contact', {'_locale': app.request.locale}) }}" 
+                           class="btn btn-outline-light btn-lg">
+                            <i class="bi bi-envelope me-2"></i>{{ 'homepage.hero.contact_us'|trans }}
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <div class="hero-icon">
+                        <i class="bi bi-star-fill" style="font-size: 8rem; opacity: 0.8;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {# Features Section #}
+    <section class="features-section py-5">
+        <div class="container">
+            <div class="row text-center mb-5">
+                <div class="col-12">
+                    <h2 class="display-5 fw-bold mb-3">{{ 'homepage.features.title'|trans }}</h2>
+                    <p class="lead text-muted">{{ 'homepage.features.subtitle'|trans }}</p>
+                </div>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="feature-card text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="bi bi-lightning-charge text-primary" style="font-size: 3rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">{{ 'homepage.features.fast.title'|trans }}</h4>
+                        <p class="text-muted">{{ 'homepage.features.fast.description'|trans }}</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="feature-card text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="bi bi-shield-check text-primary" style="font-size: 3rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">{{ 'homepage.features.secure.title'|trans }}</h4>
+                        <p class="text-muted">{{ 'homepage.features.secure.description'|trans }}</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="feature-card text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="bi bi-people text-primary" style="font-size: 3rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">{{ 'homepage.features.support.title'|trans }}</h4>
+                        <p class="text-muted">{{ 'homepage.features.support.description'|trans }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {# Services Preview Section #}
+    <section class="services-preview-section bg-light py-5">
+        <div class="container">
+            <div class="row text-center mb-5">
+                <div class="col-12">
+                    <h2 class="display-5 fw-bold mb-3">{{ 'homepage.services.title'|trans }}</h2>
+                    <p class="lead text-muted">{{ 'homepage.services.subtitle'|trans }}</p>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-12 text-center">
+                    <div id="servicesPreview" class="row g-4">
+                        {# Services will be loaded via AJAX #}
+                        <div class="col-12">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">{{ 'homepage.services.loading'|trans }}</span>
+                            </div>
+                            <p class="text-muted mt-3">{{ 'homepage.services.loading'|trans }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="{{ path('frontend_services_index', {'_locale': app.request.locale}) }}" 
+                           class="btn btn-primary btn-lg">
+                            {{ 'homepage.services.view_all'|trans }}
+                            <i class="bi bi-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {# CTA Section #}
+    <section class="cta-section bg-primary text-white py-5">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-lg-8 mx-auto">
+                    <h2 class="display-5 fw-bold mb-3">{{ 'homepage.cta.title'|trans }}</h2>
+                    <p class="lead mb-4">{{ 'homepage.cta.subtitle'|trans }}</p>
+                    <a href="{{ path('frontend_contact', {'_locale': app.request.locale}) }}" 
+                       class="btn btn-light btn-lg">
+                        <i class="bi bi-envelope me-2"></i>{{ 'homepage.cta.button'|trans }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .min-vh-50 {
+            min-height: 50vh;
+        }
+        
+        .feature-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-radius: 1rem;
+            height: 100%;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .hero-icon {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+        
+        .service-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 1rem;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .service-card img {
+            border-radius: 1rem 1rem 0 0;
+            height: 200px;
+            object-fit: cover;
+        }
+        
+        @media (max-width: 768px) {
+            .display-4 {
+                font-size: 2rem;
+            }
+            
+            .display-5 {
+                font-size: 1.8rem;
+            }
+            
+            .hero-icon i {
+                font-size: 4rem !important;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block extra_javascripts %}
+    {{ parent() }}
+    <script>
+        // Load services preview via AJAX
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('{{ path('frontend_api_services', {'_locale': app.request.locale}) }}')
+                .then(response => response.json())
+                .then(services => {
+                    const container = document.getElementById('servicesPreview');
+                    
+                    if (services.length > 0) {
+                        // Show first 3 services
+                        const previewServices = services.slice(0, 3);
+                        
+                        container.innerHTML = previewServices.map(service => `
+                            <div class="col-md-4">
+                                <div class="card service-card h-100">
+                                    ${service.image ? `<img src="${service.image.url}" class="card-img-top" alt="${service.title}">` : ''}
+                                    <div class="card-body d-flex flex-column">
+                                        <h5 class="card-title">${service.title}</h5>
+                                        <p class="card-text flex-grow-1">${service.description.length > 100 ? service.description.substring(0, 100) + '...' : service.description}</p>
+                                        <a href="${service.url}" class="btn btn-primary mt-auto">
+                                            {{ 'homepage.services.learn_more'|trans }}
+                                            <i class="bi bi-arrow-right ms-1"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('');
+                    } else {
+                        container.innerHTML = `
+                            <div class="col-12">
+                                <div class="text-center py-5">
+                                    <i class="bi bi-box text-muted" style="font-size: 3rem;"></i>
+                                    <h5 class="text-muted mt-3">{{ 'homepage.services.no_services'|trans }}</h5>
+                                    <p class="text-muted">{{ 'homepage.services.no_services_description'|trans }}</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading services:', error);
+                    document.getElementById('servicesPreview').innerHTML = `
+                        <div class="col-12">
+                            <div class="text-center py-5">
+                                <i class="bi bi-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
+                                <h5 class="text-muted mt-3">{{ 'homepage.services.error_loading'|trans }}</h5>
+                            </div>
+                        </div>
+                    `;
+                });
+        });
+    </script>
+{% endblock %}

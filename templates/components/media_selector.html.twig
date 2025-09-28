@@ -1,0 +1,1150 @@
+{#
+    Composant de sélection de média
+    
+    Paramètres:
+    - selectedMedia: l'objet Media actuellement sélectionné (optionnel)
+    - inputName: nom du champ input (par défaut: 'imageId')
+    - label: libellé du champ (par défaut: 'Image')
+    - required: champ requis ou non (par défaut: false)
+#}
+
+{% set inputName = inputName|default('imageId') %}
+{% set label = label|default('Image') %}
+{% set required = required|default(false) %}
+
+<div class="mb-3">
+    <label class="form-label">
+        {{ label }}
+        {% if required %}<span class="text-danger">*</span>{% endif %}
+    </label>
+    
+    <div class="media-selector" id="mediaSelector_{{ inputName }}">
+        <!-- Champ caché pour stocker l'ID du média -->
+        <input type="hidden" name="{{ inputName }}" value="{{ selectedMedia ? selectedMedia.id : '' }}" id="mediaInput_{{ inputName }}">
+        
+        <!-- Aperçu de l'image sélectionnée -->
+        <div class="media-preview {% if not selectedMedia %}d-none{% endif %}" id="mediaPreview_{{ inputName }}">
+            <div class="media-preview-container">
+                {% if selectedMedia %}
+                    <img src="{{ selectedMedia.webPath|first == '/' ? selectedMedia.webPath : '/' ~ selectedMedia.webPath }}" 
+                         alt="{{ selectedMedia.alt }}" 
+                         class="media-preview-image">
+                {% else %}
+                    <img src="" alt="" class="media-preview-image" style="display: none;">
+                {% endif %}
+                <div class="media-preview-overlay">
+                    <button type="button" class="btn btn-sm btn-outline-light me-2" onclick="openMediaLibrary('{{ inputName }}')">
+                        <i class="bi bi-pencil"></i> Modifier
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeSelectedMedia('{{ inputName }}')">
+                        <i class="bi bi-trash"></i> Supprimer
+                    </button>
+                </div>
+            </div>
+            {% if selectedMedia %}
+                <div class="media-preview-info">
+                    <small class="text-muted">{{ selectedMedia.alt ?: selectedMedia.fileName }}</small>
+                </div>
+            {% else %}
+                <div class="media-preview-info">
+                    <small class="text-muted">Image sélectionnée</small>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Bouton de sélection (affiché quand aucune image n'est sélectionnée) -->
+        <div class="media-selector-empty {% if selectedMedia %}d-none{% endif %}" id="mediaEmpty_{{ inputName }}">
+            <button type="button" class="btn btn-outline-primary w-100" onclick="openMediaLibrary('{{ inputName }}')">
+                <i class="bi bi-image me-2"></i>Sélectionner une image
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de sélection de média -->
+<div class="modal fade" id="mediaLibraryModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-images me-2"></i>Bibliothèque de médias
+                </h5>
+                <button type="button" class="btn-close" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Système d'onglets -->
+                <ul class="nav nav-tabs" id="mediaLibraryTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="select-tab" data-bs-toggle="tab" data-bs-target="#select-panel" type="button" role="tab" aria-controls="select-panel" aria-selected="true">
+                            <i class="bi bi-collection me-2"></i>Sélectionner
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="upload-tab" data-bs-toggle="tab" data-bs-target="#upload-panel" type="button" role="tab" aria-controls="upload-panel" aria-selected="false">
+                            <i class="bi bi-cloud-upload me-2"></i>Uploader
+                        </button>
+                    </li>
+                </ul>
+                
+                <!-- Contenu des onglets -->
+                <div class="tab-content" id="mediaLibraryTabContent">
+                    <!-- Onglet Sélection -->
+                    <div class="tab-pane fade show active" id="select-panel" role="tabpanel" aria-labelledby="select-tab">
+                        <div class="pt-3">
+                            <!-- Barre de recherche et filtres -->
+                            <div class="row mb-3">
+                                <div class="col-md-8">
+                                    <input type="text" class="form-control" id="mediaLibrarySearch" placeholder="Rechercher un média...">
+                                </div>
+                                <div class="col-md-4">
+                                    <select class="form-select" id="mediaLibraryTypeFilter">
+                                        <option value="">Tous les types</option>
+                                        <option value="image">Images</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- Grille des médias -->
+                            <div id="mediaLibraryGrid" class="row g-3">
+                                <!-- Les médias seront chargés ici -->
+                            </div>
+                            
+                            <!-- Pagination -->
+                            <div id="mediaLibraryPagination" class="d-flex justify-content-center mt-4">
+                                <!-- Pagination sera générée ici -->
+                            </div>
+                            
+                            <!-- État vide -->
+                            <div id="mediaLibraryEmpty" class="text-center py-5" style="display: none;">
+                                <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                                <h5 class="text-muted mt-3">Aucun média trouvé</h5>
+                                <p class="text-muted">Essayez de modifier vos critères de recherche ou uploadez de nouvelles images.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Onglet Upload -->
+                    <div class="tab-pane fade" id="upload-panel" role="tabpanel" aria-labelledby="upload-tab">
+                        <div class="pt-3">
+                            <!-- Section d'upload multiple -->
+                            <div class="upload-section p-4 border rounded bg-light">
+                                <div class="text-center mb-4">
+                                    <h6 class="mb-3">
+                                        <i class="bi bi-cloud-upload me-2"></i>Uploader de nouveaux médias
+                                    </h6>
+                                    <p class="text-muted mb-0">Ajoutez de nouvelles images à votre bibliothèque de médias</p>
+                                </div>
+                                
+                                <div class="upload-dropzone" id="uploadDropzone">
+                                    <input type="file" id="mediaUploadInput" multiple accept="image/*" style="display: none;">
+                                    <div class="upload-content text-center">
+                                        <i class="bi bi-cloud-upload text-primary" style="font-size: 3rem;"></i>
+                                        <h6 class="mt-3 mb-2">Glissez vos images ici</h6>
+                                        <p class="mb-3">ou <button type="button" class="btn btn-primary btn-sm" id="browseFilesBtn">
+                                            <i class="bi bi-folder2-open me-1"></i>parcourez vos fichiers
+                                        </button></p>
+                                        <small class="text-muted">Formats acceptés: JPG, PNG, GIF, WebP • Taille max: 10 Mo par fichier</small>
+                                    </div>
+                                </div>
+                                
+                                <!-- Progress bars pour les uploads -->
+                                <div id="uploadProgress" class="mt-4" style="display: none;"></div>
+                                
+                                <!-- Message de succès -->
+                                <div id="uploadSuccessMessage" class="alert alert-success mt-3" style="display: none;">
+                                    <i class="bi bi-check-circle me-2"></i>
+                                    <strong>Upload réussi !</strong> Vos images ont été ajoutées à la bibliothèque. 
+                                    <button type="button" class="btn btn-success btn-sm ms-2" onclick="switchToSelectTab()">
+                                        Voir dans la bibliothèque
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Base styles pour le sélecteur de média */
+.media-selector {
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0.375rem;
+    min-height: 120px;
+    background-color: var(--bs-body-bg);
+}
+
+.media-preview-container {
+    position: relative;
+    display: inline-block;
+    max-width: 100%;
+}
+
+.media-preview-image {
+    max-width: 200px;
+    max-height: 150px;
+    object-fit: cover;
+    border-radius: 0.375rem;
+    display: block;
+    border: 1px solid var(--bs-border-color);
+}
+
+.media-preview-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 0.375rem;
+}
+
+.media-preview-container:hover .media-preview-overlay {
+    opacity: 1;
+}
+
+.media-preview {
+    padding: 1rem;
+    text-align: center;
+}
+
+.media-preview-info {
+    margin-top: 0.5rem;
+}
+
+.media-selector-empty {
+    padding: 2rem 1rem;
+    text-align: center;
+}
+
+/* Styles pour les items de la bibliothèque de médias */
+.media-library-item {
+    position: relative;
+    border: 2px solid transparent;
+    border-radius: 0.375rem;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-color: var(--bs-body-bg);
+}
+
+.media-library-item:hover {
+    border-color: var(--bs-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+[data-bs-theme="dark"] .media-library-item:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.media-library-item.selected {
+    border-color: var(--bs-primary);
+    background-color: var(--bs-primary-bg-subtle);
+}
+
+.media-library-item img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+}
+
+.media-library-item .media-library-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(var(--bs-primary-rgb), 0.8);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.media-library-item:hover .media-library-overlay,
+.media-library-item.selected .media-library-overlay {
+    opacity: 1;
+}
+
+.media-library-item .media-library-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 0.5rem;
+    font-size: 0.8rem;
+}
+
+/* Styles pour la zone d'upload */
+.upload-dropzone {
+    border: 2px dashed var(--bs-border-color);
+    border-radius: 0.375rem;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    background-color: var(--bs-body-bg);
+}
+
+.upload-dropzone:hover,
+.upload-dropzone.dragover {
+    border-color: var(--bs-primary);
+    background-color: var(--bs-primary-bg-subtle);
+}
+
+.upload-dropzone.dragover {
+    border-color: var(--bs-primary);
+}
+
+[data-bs-theme="dark"] .upload-dropzone:hover,
+[data-bs-theme="dark"] .upload-dropzone.dragover {
+    background-color: var(--bs-dark-bg-subtle);
+}
+
+.upload-progress-item {
+    margin-bottom: 0.5rem;
+}
+
+.upload-progress-bar {
+    transition: width 0.3s ease;
+}
+
+.upload-success {
+    color: var(--bs-success) !important;
+}
+
+.upload-error {
+    color: var(--bs-danger) !important;
+}
+
+/* Styles spécifiques pour le mode dark */
+[data-bs-theme="dark"] .media-selector {
+    background-color: var(--bs-dark);
+    border-color: var(--bs-border-color);
+}
+
+[data-bs-theme="dark"] .media-preview-image {
+    border-color: var(--bs-border-color);
+}
+
+[data-bs-theme="dark"] .upload-dropzone {
+    background-color: var(--bs-dark);
+    border-color: var(--bs-border-color);
+}
+
+[data-bs-theme="dark"] .media-library-item {
+    background-color: var(--bs-dark);
+}
+
+/* Amélioration de la modal pour le mode dark */
+[data-bs-theme="dark"] .modal-content {
+    background-color: var(--bs-dark);
+    border-color: var(--bs-border-color);
+}
+
+[data-bs-theme="dark"] .modal-header {
+    border-bottom-color: var(--bs-border-color);
+}
+
+[data-bs-theme="dark"] .modal-footer {
+    border-top-color: var(--bs-border-color);
+}
+
+/* Amélioration des contrôles de formulaire dans la modal */
+[data-bs-theme="dark"] .form-control {
+    background-color: var(--bs-dark);
+    border-color: var(--bs-border-color);
+    color: var(--bs-body-color);
+}
+
+[data-bs-theme="dark"] .form-control:focus {
+    background-color: var(--bs-dark);
+    border-color: var(--bs-primary);
+    color: var(--bs-body-color);
+}
+
+[data-bs-theme="dark"] .form-select {
+    background-color: var(--bs-dark);
+    border-color: var(--bs-border-color);
+    color: var(--bs-body-color);
+}
+
+/* Styles pour les onglets du modal */
+.nav-tabs {
+    border-bottom: 2px solid var(--bs-border-color);
+    margin-bottom: 0;
+}
+
+.nav-tabs .nav-link {
+    border: 1px solid transparent;
+    border-radius: 0.375rem 0.375rem 0 0;
+    color: var(--bs-secondary);
+    font-weight: 500;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link:hover {
+    border-color: var(--bs-border-color);
+    color: var(--bs-primary);
+    background-color: var(--bs-light);
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--bs-primary);
+    background-color: var(--bs-body-bg);
+    border-color: var(--bs-border-color) var(--bs-border-color) var(--bs-body-bg);
+    border-bottom-color: transparent;
+}
+
+.tab-content {
+    border: 1px solid var(--bs-border-color);
+    border-top: none;
+    border-radius: 0 0 0.375rem 0.375rem;
+    background-color: var(--bs-body-bg);
+}
+
+/* Mode dark pour les onglets */
+[data-bs-theme="dark"] .nav-tabs {
+    border-bottom-color: var(--bs-border-color);
+}
+
+[data-bs-theme="dark"] .nav-tabs .nav-link {
+    color: var(--bs-secondary);
+}
+
+[data-bs-theme="dark"] .nav-tabs .nav-link:hover {
+    border-color: var(--bs-border-color);
+    background-color: var(--bs-dark-bg-subtle);
+    color: var(--bs-primary);
+}
+
+[data-bs-theme="dark"] .nav-tabs .nav-link.active {
+    background-color: var(--bs-dark);
+    border-color: var(--bs-border-color) var(--bs-border-color) var(--bs-dark);
+    color: var(--bs-primary);
+}
+
+[data-bs-theme="dark"] .tab-content {
+    background-color: var(--bs-dark);
+    border-color: var(--bs-border-color);
+}
+
+/* Amélioration de la zone d'upload */
+.upload-section {
+    background: linear-gradient(135deg, var(--bs-light) 0%, var(--bs-body-bg) 100%);
+    border: 1px solid var(--bs-border-color);
+}
+
+[data-bs-theme="dark"] .upload-section {
+    background: linear-gradient(135deg, var(--bs-dark-bg-subtle) 0%, var(--bs-dark) 100%);
+    border-color: var(--bs-border-color);
+}
+
+.upload-dropzone {
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.upload-dropzone:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+[data-bs-theme="dark"] .upload-dropzone:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+/* Animation pour l'icône d'upload */
+.upload-dropzone:hover .bi-cloud-upload {
+    transform: scale(1.1);
+    transition: transform 0.3s ease;
+}
+
+/* Styles pour le message de succès */
+#uploadSuccessMessage {
+    border-left: 4px solid var(--bs-success);
+}
+
+/* Amélioration de l'état vide */
+#mediaLibraryEmpty {
+    background: var(--bs-light);
+    border-radius: 0.375rem;
+    margin: 2rem 0;
+}
+
+[data-bs-theme="dark"] #mediaLibraryEmpty {
+    background: var(--bs-dark-bg-subtle);
+}
+</style>
+
+<script>
+let mediaLibraryCurrentPage = 1;
+let mediaLibrarySearchQuery = '';
+let mediaLibraryTypeFilter = 'image'; // Par défaut, ne montrer que les images
+let currentInputName = '';
+
+function openMediaLibrary(inputName) {
+    currentInputName = inputName;
+    const modalElement = document.getElementById('mediaLibraryModal');
+    
+    // S'assurer que l'onglet "Sélectionner" est activé par défaut
+    const selectTab = document.getElementById('select-tab');
+    const uploadTab = document.getElementById('upload-tab');
+    const selectPanel = document.getElementById('select-panel');
+    const uploadPanel = document.getElementById('upload-panel');
+    const successMessage = document.getElementById('uploadSuccessMessage');
+    
+    if (selectTab && uploadTab && selectPanel && uploadPanel) {
+        // Activer l'onglet sélectionner
+        selectTab.classList.add('active');
+        uploadTab.classList.remove('active');
+        selectPanel.classList.add('show', 'active');
+        uploadPanel.classList.remove('show', 'active');
+        
+        // Masquer le message de succès
+        if (successMessage) {
+            successMessage.style.display = 'none';
+        }
+    }
+    
+    // Réinitialiser les filtres
+    document.getElementById('mediaLibrarySearch').value = '';
+    document.getElementById('mediaLibraryTypeFilter').value = 'image';
+    mediaLibraryCurrentPage = 1;
+    mediaLibrarySearchQuery = '';
+    mediaLibraryTypeFilter = 'image';
+    
+    // Charger les médias
+    loadMediaLibrary();
+    
+    // Initialiser l'upload
+    setTimeout(() => {
+        initializeUpload();
+    }, 300);
+    
+    // Vérifier si Bootstrap est disponible
+    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+    } else if (typeof $ !== 'undefined' && $.fn.modal) {
+        // Fallback vers jQuery si Bootstrap n'est pas disponible
+        $(modalElement).modal('show');
+    } else {
+        // Dernière solution : afficher manuellement
+        modalElement.style.display = 'block';
+        modalElement.classList.add('show');
+        document.body.classList.add('modal-open');
+        
+        // Ajouter backdrop
+        const backdrop = document.createElement('div');
+        backdrop.className = 'modal-backdrop fade show';
+        backdrop.id = 'mediaModalBackdrop';
+        document.body.appendChild(backdrop);
+        
+        // Initialiser l'upload après affichage
+        setTimeout(() => {
+            initializeUpload();
+        }, 100);
+    }
+}
+
+function removeSelectedMedia(inputName) {
+    // Vérifier que l'inputName est fourni
+    if (!inputName) {
+        console.error('inputName is required for removeSelectedMedia');
+        return;
+    }
+    
+    // Vider le champ caché
+    const hiddenInput = document.getElementById('mediaInput_' + inputName);
+    if (hiddenInput) {
+        hiddenInput.value = '';
+    }
+    
+    // Mettre à jour l'affichage
+    const previewContainer = document.getElementById('mediaPreview_' + inputName);
+    const emptyContainer = document.getElementById('mediaEmpty_' + inputName);
+    
+    if (previewContainer && emptyContainer) {
+        previewContainer.classList.add('d-none');
+        emptyContainer.classList.remove('d-none');
+        
+        // Optionnel: vider l'image pour éviter les problèmes de cache
+        const previewImage = previewContainer.querySelector('.media-preview-image');
+        if (previewImage) {
+            previewImage.src = '';
+            previewImage.alt = '';
+            previewImage.style.display = 'none'; // Cacher l'image
+        }
+        
+        const previewInfo = previewContainer.querySelector('.media-preview-info small');
+        if (previewInfo) {
+            previewInfo.textContent = '';
+        }
+    } else {
+        console.error('Preview containers not found for input:', inputName);
+    }
+}
+
+function selectMedia(mediaId, mediaUrl, mediaAlt) {
+    // Vérification de sécurité
+    if (!currentInputName) {
+        console.error('currentInputName is not defined');
+        return;
+    }
+    
+    // Mettre à jour le champ caché
+    const hiddenInput = document.getElementById('mediaInput_' + currentInputName);
+    if (hiddenInput) {
+        hiddenInput.value = mediaId;
+    }
+    
+    // Mettre à jour l'aperçu
+    const previewContainer = document.getElementById('mediaPreview_' + currentInputName);
+    const emptyContainer = document.getElementById('mediaEmpty_' + currentInputName);
+    
+    if (previewContainer && emptyContainer) {
+        // Vérifier que les éléments enfants existent
+        const previewImage = previewContainer.querySelector('.media-preview-image');
+        const previewInfo = previewContainer.querySelector('.media-preview-info small');
+        
+        if (previewImage) {
+            // S'assurer que l'URL est correctement formatée
+            const imageUrl = mediaUrl.startsWith('/') ? mediaUrl : '/' + mediaUrl;
+            previewImage.src = imageUrl;
+            previewImage.alt = mediaAlt || '';
+            
+            // Rendre l'image visible (au cas où elle était cachée)
+            previewImage.style.display = 'block';
+            
+            // Forcer le rechargement de l'image en cas de problème de cache
+            previewImage.onload = function() {
+                previewContainer.classList.remove('d-none');
+                emptyContainer.classList.add('d-none');
+            };
+            
+            previewImage.onerror = function() {
+                console.error('Erreur de chargement de l\'image:', imageUrl);
+                // En cas d'erreur, afficher quand même le conteneur avec un placeholder
+                previewContainer.classList.remove('d-none');
+                emptyContainer.classList.add('d-none');
+            };
+            
+            // Mise à jour immédiate si l'image est déjà en cache
+            if (previewImage.complete && previewImage.naturalWidth > 0) {
+                previewContainer.classList.remove('d-none');
+                emptyContainer.classList.add('d-none');
+            }
+        }
+        
+        if (previewInfo) {
+            previewInfo.textContent = mediaAlt || 'Image sélectionnée';
+        }
+        
+        // Fermer la modal
+        closeMediaLibrary();
+    } else {
+        console.error('Preview containers not found for input:', currentInputName);
+    }
+}
+
+function closeMediaLibrary() {
+    const modalElement = document.getElementById('mediaLibraryModal');
+    
+    // Vérifier si Bootstrap est disponible
+    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+        const modal = bootstrap.Modal.getInstance(modalElement);
+        if (modal) {
+            modal.hide();
+        }
+    } else if (typeof $ !== 'undefined' && $.fn.modal) {
+        // Fallback vers jQuery si Bootstrap n'est pas disponible
+        $(modalElement).modal('hide');
+    } else {
+        // Dernière solution : cacher manuellement
+        modalElement.style.display = 'none';
+        modalElement.classList.remove('show');
+        document.body.classList.remove('modal-open');
+        
+        // Supprimer backdrop
+        const backdrop = document.getElementById('mediaModalBackdrop');
+        if (backdrop) {
+            backdrop.remove();
+        }
+    }
+}
+
+async function loadMediaLibrary() {
+    try {
+        const response = await fetch('{{ path("admin_media_list") }}?' + new URLSearchParams({
+            page: mediaLibraryCurrentPage,
+            search: mediaLibrarySearchQuery,
+            type: mediaLibraryTypeFilter
+        }));
+        
+        const data = await response.json();
+        renderMediaLibrary(data.medias);
+        renderMediaLibraryPagination(data.pagination);
+    } catch (error) {
+        console.error('Erreur lors du chargement des médias:', error);
+    }
+}
+
+function renderMediaLibrary(medias) {
+    const grid = document.getElementById('mediaLibraryGrid');
+    const empty = document.getElementById('mediaLibraryEmpty');
+    
+    grid.innerHTML = '';
+    
+    if (medias.length === 0) {
+        empty.style.display = 'block';
+        return;
+    }
+    
+    empty.style.display = 'none';
+    
+    medias.forEach(media => {
+        if (media.isImage) { // Ne montrer que les images
+            const item = createMediaLibraryItem(media);
+            grid.appendChild(item);
+        }
+    });
+}
+
+function createMediaLibraryItem(media) {
+    const col = document.createElement('div');
+    col.className = 'col-lg-2 col-md-3 col-sm-4 col-6';
+    
+    col.innerHTML = `
+        <div class="media-library-item" onclick="selectMedia(${media.id}, '${media.url}', '${media.alt || ''}')">
+            <img src="${media.url}" alt="${media.alt || ''}">
+            <div class="media-library-overlay">
+                <i class="bi bi-check-circle" style="font-size: 2rem;"></i>
+            </div>
+            <div class="media-library-info">
+                <div class="text-truncate">${media.alt || media.fileName}</div>
+            </div>
+        </div>
+    `;
+    
+    return col;
+}
+
+function renderMediaLibraryPagination(pagination) {
+    const container = document.getElementById('mediaLibraryPagination');
+    container.innerHTML = '';
+    
+    if (pagination.total <= 1) return;
+    
+    const nav = document.createElement('nav');
+    nav.innerHTML = '<ul class="pagination"></ul>';
+    const ul = nav.querySelector('ul');
+    
+    // Page précédente
+    if (pagination.current > 1) {
+        ul.innerHTML += `
+            <li class="page-item">
+                <a class="page-link" href="#" onclick="goToMediaLibraryPage(${pagination.current - 1}); return false;">Précédent</a>
+            </li>
+        `;
+    }
+    
+    // Pages numérotées
+    for (let i = Math.max(1, pagination.current - 2); i <= Math.min(pagination.total, pagination.current + 2); i++) {
+        ul.innerHTML += `
+            <li class="page-item ${i === pagination.current ? 'active' : ''}">
+                <a class="page-link" href="#" onclick="goToMediaLibraryPage(${i}); return false;">${i}</a>
+            </li>
+        `;
+    }
+    
+    // Page suivante
+    if (pagination.current < pagination.total) {
+        ul.innerHTML += `
+            <li class="page-item">
+                <a class="page-link" href="#" onclick="goToMediaLibraryPage(${pagination.current + 1}); return false;">Suivant</a>
+            </li>
+        `;
+    }
+    
+    container.appendChild(nav);
+}
+
+function goToMediaLibraryPage(page) {
+    mediaLibraryCurrentPage = page;
+    loadMediaLibrary();
+}
+
+// Fonctions pour l'upload multiple
+function initializeUpload() {
+    const uploadInput = document.getElementById('mediaUploadInput');
+    const dropzone = document.getElementById('uploadDropzone');
+    const browseBtn = document.getElementById('browseFilesBtn');
+    
+    if (uploadInput) {
+        // Retirer les anciens event listeners pour éviter les doublons
+        uploadInput.removeEventListener('change', handleFileSelection);
+        uploadInput.addEventListener('change', handleFileSelection);
+    }
+    
+    if (dropzone) {
+        // Retirer les anciens event listeners pour éviter les doublons
+        dropzone.removeEventListener('dragover', handleDragOver);
+        dropzone.removeEventListener('dragleave', handleDragLeave);
+        dropzone.removeEventListener('drop', handleFileDrop);
+        
+        // Gestionnaires drag & drop
+        dropzone.addEventListener('dragover', handleDragOver);
+        dropzone.addEventListener('dragleave', handleDragLeave);
+        dropzone.addEventListener('drop', handleFileDrop);
+        
+        // Clic sur la dropzone pour ouvrir le sélecteur
+        dropzone.addEventListener('click', function(e) {
+            // Éviter de déclencher si c'est déjà le bouton qui a été cliqué
+            if (!e.target.closest('#browseFilesBtn') && uploadInput) {
+                uploadInput.click();
+            }
+        });
+    }
+    
+    if (browseBtn) {
+        // Retirer l'ancien event listener pour éviter les doublons
+        browseBtn.removeEventListener('click', triggerFileSelection);
+        browseBtn.addEventListener('click', triggerFileSelection);
+    }
+}
+
+function triggerFileSelection(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const uploadInput = document.getElementById('mediaUploadInput');
+    if (uploadInput) {
+        uploadInput.click();
+    }
+}
+
+function handleDragOver(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    e.currentTarget.classList.add('dragover');
+}
+
+function handleDragLeave(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    e.currentTarget.classList.remove('dragover');
+}
+
+function handleFileDrop(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    e.currentTarget.classList.remove('dragover');
+    
+    const files = Array.from(e.dataTransfer.files);
+    const imageFiles = files.filter(file => file.type.startsWith('image/'));
+    
+    if (imageFiles.length > 0) {
+        uploadFiles(imageFiles);
+    } else {
+        alert('Veuillez sélectionner uniquement des fichiers image.');
+    }
+}
+
+function handleFileSelection(e) {
+    const files = Array.from(e.target.files);
+    uploadFiles(files);
+    // Réinitialiser l'input pour permettre la sélection du même fichier
+    e.target.value = '';
+}
+
+async function uploadFiles(files) {
+    const progressContainer = document.getElementById('uploadProgress');
+    const successMessage = document.getElementById('uploadSuccessMessage');
+    
+    // Vérification critique : progressContainer est indispensable
+    if (!progressContainer) {
+        console.error('Élément uploadProgress requis non trouvé');
+        return;
+    }
+    
+    // Affichage de la progression (toujours possible)
+    progressContainer.style.display = 'block';
+    progressContainer.innerHTML = '';
+    
+    // Masquer le message de succès seulement s'il existe
+    if (successMessage) {
+        successMessage.style.display = 'none';
+    }
+    
+    const formData = new FormData();
+    
+    // Ajouter tous les fichiers au FormData
+    files.forEach((file, index) => {
+        formData.append(`files[${index}]`, file);
+        
+        // Créer la barre de progression pour chaque fichier
+        const progressItem = createProgressItem(file.name, index);
+        progressContainer.appendChild(progressItem);
+    });
+    
+    try {
+        // Upload avec suivi de progression
+        const response = await fetch('{{ path("admin_media_upload") }}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Marquer tous les fichiers comme réussis
+            files.forEach((file, index) => {
+                updateProgressItem(index, 100, 'success', 'Upload réussi');
+            });
+            
+            // Afficher le message de succès si disponible
+            setTimeout(() => {
+                if (successMessage) {
+                    successMessage.style.display = 'block';
+                }
+                if (progressContainer) {
+                    progressContainer.style.display = 'none';
+                }
+            }, 1500);
+            
+            // Recharger la bibliothèque de médias si on est sur l'onglet sélection
+            const selectTab = document.getElementById('select-panel');
+            if (selectTab && selectTab.classList.contains('active')) {
+                loadMediaLibrary();
+            }
+        } else {
+            // Gérer les erreurs individuelles si disponibles
+            if (result.errors && Array.isArray(result.errors)) {
+                result.errors.forEach((error, index) => {
+                    updateProgressItem(index, 0, 'error', error);
+                });
+            } else {
+                files.forEach((file, index) => {
+                    updateProgressItem(index, 0, 'error', result.message || 'Erreur d\'upload');
+                });
+            }
+        }
+    } catch (error) {
+        console.error('Erreur upload:', error);
+        files.forEach((file, index) => {
+            updateProgressItem(index, 0, 'error', 'Erreur réseau');
+        });
+    }
+}
+
+function createProgressItem(fileName, index) {
+    const item = document.createElement('div');
+    item.className = 'upload-progress-item';
+    item.id = `progress-${index}`;
+    
+    item.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center mb-1">
+            <small class="text-truncate" style="max-width: 70%;">${fileName}</small>
+            <small class="upload-status">En cours...</small>
+        </div>
+        <div class="progress" style="height: 6px;">
+            <div class="progress-bar upload-progress-bar" role="progressbar" style="width: 0%"></div>
+        </div>
+    `;
+    
+    return item;
+}
+
+function updateProgressItem(index, percentage, status, message) {
+    const item = document.getElementById(`progress-${index}`);
+    if (!item) return;
+    
+    const progressBar = item.querySelector('.upload-progress-bar');
+    const statusElement = item.querySelector('.upload-status');
+    
+    if (progressBar) {
+        progressBar.style.width = `${percentage}%`;
+        
+        // Changer la couleur selon le statut
+        if (status === 'success') {
+            progressBar.classList.remove('bg-danger');
+            progressBar.classList.add('bg-success');
+        } else if (status === 'error') {
+            progressBar.classList.remove('bg-success');
+            progressBar.classList.add('bg-danger');
+        }
+    }
+    
+    if (statusElement) {
+        statusElement.textContent = message;
+        statusElement.className = `upload-status ${status === 'success' ? 'upload-success' : status === 'error' ? 'upload-error' : ''}`;
+    }
+}
+
+// Fonctions pour la gestion des onglets
+function switchToSelectTab() {
+    const selectTab = document.getElementById('select-tab');
+    const uploadPanel = document.getElementById('upload-panel');
+    const selectPanel = document.getElementById('select-panel');
+    const successMessage = document.getElementById('uploadSuccessMessage');
+    
+    if (selectTab && uploadPanel && selectPanel) {
+        // Activer l'onglet sélection
+        selectTab.click();
+        
+        // Masquer le message de succès
+        if (successMessage) {
+            successMessage.style.display = 'none';
+        }
+        
+        // Recharger la bibliothèque pour afficher les nouvelles images
+        loadMediaLibrary();
+    }
+}
+
+function initializeTabs() {
+    const tabs = document.querySelectorAll('#mediaLibraryTabs .nav-link');
+    
+    tabs.forEach(tab => {
+        tab.addEventListener('shown.bs.tab', function (event) {
+            const targetTab = event.target.getAttribute('data-bs-target');
+            
+            // Si on passe à l'onglet sélection, charger les médias
+            if (targetTab === '#select-panel') {
+                loadMediaLibrary();
+            }
+            
+            // Si on passe à l'onglet upload, réinitialiser l'upload et masquer le message de succès
+            if (targetTab === '#upload-panel') {
+                // Réinitialiser l'upload pour s'assurer que les event listeners sont attachés
+                setTimeout(() => {
+                    initializeUpload();
+                }, 100);
+                
+                const successMessage = document.getElementById('uploadSuccessMessage');
+                if (successMessage) {
+                    successMessage.style.display = 'none';
+                }
+            }
+        });
+    });
+    
+    // Fallback pour les navigateurs sans support Bootstrap JS
+    const selectTab = document.getElementById('select-tab');
+    const uploadTab = document.getElementById('upload-tab');
+    
+    if (selectTab && uploadTab) {
+        selectTab.addEventListener('click', function() {
+            setTimeout(() => {
+                const selectPanel = document.getElementById('select-panel');
+                if (selectPanel && selectPanel.classList.contains('active')) {
+                    loadMediaLibrary();
+                }
+            }, 100);
+        });
+        
+        uploadTab.addEventListener('click', function() {
+            setTimeout(() => {
+                const uploadPanel = document.getElementById('upload-panel');
+                if (uploadPanel && uploadPanel.classList.contains('active')) {
+                    initializeUpload();
+                    const successMessage = document.getElementById('uploadSuccessMessage');
+                    if (successMessage) {
+                        successMessage.style.display = 'none';
+                    }
+                }
+            }, 100);
+        });
+    }
+}
+
+// Event listeners pour la recherche et les filtres
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('mediaLibrarySearch');
+    const typeFilter = document.getElementById('mediaLibraryTypeFilter');
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            mediaLibrarySearchQuery = this.value;
+            mediaLibraryCurrentPage = 1;
+            loadMediaLibrary();
+        });
+    }
+    
+    if (typeFilter) {
+        typeFilter.addEventListener('change', function() {
+            mediaLibraryTypeFilter = this.value;
+            mediaLibraryCurrentPage = 1;
+            loadMediaLibrary();
+        });
+    }
+    
+    // Initialiser l'upload avec délai pour s'assurer que le DOM est prêt
+    setTimeout(() => {
+        initializeUpload();
+    }, 500);
+    
+    // Initialiser les onglets
+    initializeTabs();
+    
+    // Gestionnaires pour fermer la modal
+    const modalElement = document.getElementById('mediaLibraryModal');
+    if (modalElement) {
+        // Bouton de fermeture
+        const closeButton = modalElement.querySelector('.btn-close');
+        if (closeButton) {
+            closeButton.addEventListener('click', closeMediaLibrary);
+        }
+        
+        // Bouton Fermer dans le footer
+        const footerCloseButton = modalElement.querySelector('.modal-footer .btn-secondary');
+        if (footerCloseButton) {
+            footerCloseButton.addEventListener('click', closeMediaLibrary);
+        }
+        
+        // Clic sur le backdrop
+        modalElement.addEventListener('click', function(e) {
+            if (e.target === modalElement) {
+                closeMediaLibrary();
+            }
+        });
+        
+        // Touche Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && !modalElement.classList.contains('d-none') && 
+                (modalElement.style.display === 'block' || modalElement.classList.contains('show'))) {
+                closeMediaLibrary();
+            }
+        });
+        
+        // Réinitialiser l'upload quand le modal s'ouvre
+        modalElement.addEventListener('shown.bs.modal', function() {
+            setTimeout(() => {
+                initializeUpload();
+            }, 100);
+        });
+    }
+});
+</script>

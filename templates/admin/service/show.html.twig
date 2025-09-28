@@ -1,0 +1,208 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Service - {{ service.title }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3">Service: {{ service.title }}</h1>
+                <div>
+                    <a href="{{ path('admin_service_edit', {id: service.id}) }}" class="btn btn-primary btn-sm me-2">
+                        <i class="bi bi-pencil"></i> Éditer
+                    </a>
+                    <a href="{{ path('admin_service_index') }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Retour à la liste
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Service Information -->
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Informations du Service</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-borderless">
+                                    <tbody>
+                                        <tr>
+                                            <th width="200">ID</th>
+                                            <td>{{ service.id }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Titre</th>
+                                            <td><strong>{{ service.title }}</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Slug</th>
+                                            <td><code>{{ service.slug }}</code></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Description courte</th>
+                                            <td>{{ service.shortDescription|default('Non définie') }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Description complète</th>
+                                            <td>
+                                                {% if service.description %}
+                                                    <div class="border p-3 rounded bg-light">
+                                                        {{ service.description|raw }}
+                                                    </div>
+                                                {% else %}
+                                                    <em class="text-muted">Non définie</em>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>Ordre de tri</th>
+                                            <td>{{ service.sortOrder|default('0') }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Statut</th>
+                                            <td>
+                                                {% if service.isActive %}
+                                                    <span class="badge bg-success">Actif</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">Inactif</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>Date de création</th>
+                                            <td>
+                                                {% if service.createdAt %}
+                                                    {{ service.createdAt|date('d/m/Y H:i') }}
+                                                {% else %}
+                                                    <em class="text-muted">Non définie</em>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>Dernière modification</th>
+                                            <td>
+                                                {% if service.updatedAt %}
+                                                    {{ service.updatedAt|date('d/m/Y H:i') }}
+                                                {% else %}
+                                                    <em class="text-muted">Non définie</em>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Image Section -->
+                    {% if service.image %}
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Image associée</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <img src="/{{ service.image.webPath }}" alt="{{ service.image.alt }}" 
+                                         class="img-fluid rounded border">
+                                </div>
+                                <div class="col-md-6">
+                                    <table class="table table-borderless">
+                                        <tbody>
+                                            <tr>
+                                                <th>Fichier</th>
+                                                <td>{{ service.image.webPath }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Texte alternatif</th>
+                                                <td>{{ service.image.alt|default('Non défini') }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Actions Panel -->
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Actions</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a href="{{ path('admin_service_edit', {id: service.id}) }}" class="btn btn-primary">
+                                    <i class="bi bi-pencil"></i> Éditer ce service
+                                </a>
+                                
+                                <a href="{{ path('admin_service_new') }}" class="btn btn-success">
+                                    <i class="bi bi-plus"></i> Nouveau service
+                                </a>
+                                
+                                <hr>
+                                
+                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                    <i class="bi bi-trash"></i> Supprimer ce service
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Service Statistics -->
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Statistiques</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="text-center">
+                                <div class="mb-3">
+                                    <h4 class="text-primary">{{ service.id }}</h4>
+                                    <small class="text-muted">ID du service</small>
+                                </div>
+                                <div class="mb-3">
+                                    <h4 class="text-success">{{ service.sortOrder|default('0') }}</h4>
+                                    <small class="text-muted">Ordre d'affichage</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirmer la suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir supprimer le service <strong>"{{ service.title }}"</strong> ?</p>
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    Cette action est irréversible et supprimera toutes les données associées à ce service.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form method="post" action="{{ path('admin_service_delete', {id: service.id}) }}" class="d-inline">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ service.id) }}">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Supprimer définitivement
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,245 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}{{ 'translations.title'|trans({}, 'admin') }} - Administration - LandingPageCms{% endblock %}
+
+{% block body %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="bi bi-translate me-2 text-info"></i>{{ 'translations.title'|trans({}, 'admin') }}
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <button type="button" class="btn btn-outline-primary" id="synchronizeAll">
+            <i class="bi bi-arrow-clockwise me-2"></i>{{ 'translations.actions.refresh'|trans({}, 'admin') }}
+        </button>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        {% if translationFiles|length > 0 %}
+            {% for domain, locales in translationFiles %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-folder me-2"></i>{{ 'translations.domain'|trans({}, 'admin') }}: <strong>{{ domain }}</strong>
+                            </h5>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="synchronizeDomain('{{ domain }}')">
+                                <i class="bi bi-arrow-clockwise me-1"></i>{{ 'translations.actions.refresh'|trans({}, 'admin') }}
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>{{ 'translations.locale'|trans({}, 'admin') }}</th>
+                                        <th>{{ 'languages.fields.name'|trans({}, 'admin') }}</th>
+                                        <th>{{ 'translations.keys'|trans({}, 'admin') }}</th>
+                                        <th>{{ 'dashboard.translation_progress'|trans({}, 'admin') }}</th>
+                                        <th class="text-end">{{ 'common.actions.title'|trans({}, 'admin') }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for locale, fileInfo in locales %}
+                                        {% set language = languages|filter(l => l.code == locale)|first %}
+                                        {% set stat = stats[domain][locale] ?? null %}
+                                        <tr>
+                                            <td>
+                                                <span class="badge bg-primary">{{ locale|upper }}</span>
+                                                {% if language and language.default %}
+                                                    <i class="bi bi-star-fill text-warning ms-1" title="{{ 'services.translation_status.default_language'|trans({}, 'admin') }}"></i>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if language %}
+                                                    {{ language.name }}
+                                                    <small class="text-muted d-block">{{ language.nativeName }}</small>
+                                                {% else %}
+                                                    <span class="text-muted">{{ locale }}</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if stat %}
+                                                    <span class="badge bg-secondary">{{ stat.total }}</span>
+                                                {% else %}
+                                                    <span class="text-muted">-</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if stat %}
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="progress me-2" style="width: 100px; height: 20px;">
+                                                            <div class="progress-bar 
+                                                                {% if stat.percentage == 100 %}bg-success
+                                                                {% elseif stat.percentage >= 75 %}bg-info
+                                                                {% elseif stat.percentage >= 50 %}bg-warning
+                                                                {% else %}bg-danger{% endif %}"
+                                                                 role="progressbar" 
+                                                                 style="width: {{ stat.percentage }}%"
+                                                                 aria-valuenow="{{ stat.percentage }}" 
+                                                                 aria-valuemin="0" 
+                                                                 aria-valuemax="100">
+                                                            </div>
+                                                        </div>
+                                                        <span class="small">{{ stat.percentage }}%</span>
+                                                    </div>
+                                                    {% if stat.missing > 0 %}
+                                                        <small class="text-danger">{{ stat.missing }} manquantes</small>
+                                                    {% endif %}
+                                                {% else %}
+                                                    <span class="text-muted">-</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-end">
+                                                <div class="btn-group btn-group-sm">
+                                                    <a href="{{ path('admin_translation_edit', {domain: domain, locale: locale}) }}" 
+                                                       class="btn btn-outline-primary">
+                                                        <i class="bi bi-pencil"></i> {{ 'translations.actions.edit'|trans({}, 'admin') }}
+                                                    </a>
+                                                    <a href="{{ path('admin_translation_export', {domain: domain, locale: locale}) }}" 
+                                                       class="btn btn-outline-secondary">
+                                                        <i class="bi bi-download"></i> {{ 'translations.actions.export'|trans({}, 'admin') }}
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-translate display-1 text-muted mb-3"></i>
+                    <h3 class="text-muted">{{ 'common.messages.no_results'|trans({}, 'admin') }}</h3>
+                    <p class="text-muted">{{ 'translations.help.domain_info'|trans({}, 'admin') }}</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="bi bi-info-circle me-2"></i>{{ 'services.tabs.tips'|trans({}, 'admin') }}
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-3">
+                        <i class="bi bi-check-circle text-success me-2"></i>
+                        <strong>{{ 'translations.help.domain_info'|trans({}, 'admin') }}</strong>
+                    </li>
+                    <li class="mb-3">
+                        <i class="bi bi-check-circle text-success me-2"></i>
+                        <strong>{{ 'translations.help.key_format'|trans({}, 'admin') }}</strong>
+                    </li>
+                    <li class="mb-3">
+                        <i class="bi bi-check-circle text-success me-2"></i>
+                        <strong>{{ 'translations.help.fallback'|trans({}, 'admin') }}</strong>
+                    </li>
+                    <li class="mb-0">
+                        <i class="bi bi-info-circle text-primary me-2"></i>
+                        <small class="text-muted">Les traductions sont synchronisées avec les langues configurées</small>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="bi bi-bar-chart me-2"></i>Statistiques globales
+                </h6>
+            </div>
+            <div class="card-body">
+                {% set totalDomains = translationFiles|length %}
+                {% set totalLocales = availableLocales|length %}
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="border-end">
+                            <h4 class="text-primary mb-0">{{ totalDomains }}</h4>
+                            <small class="text-muted">Domaines</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <h4 class="text-info mb-0">{{ totalLocales }}</h4>
+                        <small class="text-muted">{{ 'dashboard.total_languages'|trans({}, 'admin') }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_javascripts %}
+    {{ parent() }}
+    <script>
+        function synchronizeDomain(domain) {
+            const btn = event.target.closest('button');
+            const originalContent = btn.innerHTML;
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-arrow-clockwise me-1 spinner-border spinner-border-sm"></i>Synchronisation...';
+            
+            fetch(`{{ path('admin_translation_synchronize', {domain: '__DOMAIN__'})|replace({'__DOMAIN__': ''}) }}${domain}`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Erreur lors de la synchronisation: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Erreur lors de la synchronisation');
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = originalContent;
+            });
+        }
+
+        document.getElementById('synchronizeAll')?.addEventListener('click', function() {
+            const domains = {{ translationFiles|keys|json_encode|raw }};
+            
+            this.disabled = true;
+            this.innerHTML = '<i class="bi bi-arrow-clockwise me-2 spinner-border spinner-border-sm"></i>Synchronisation...';
+            
+            Promise.all(domains.map(domain => 
+                fetch(`{{ path('admin_translation_synchronize', {domain: '__DOMAIN__'})|replace({'__DOMAIN__': ''}) }}${domain}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/json'
+                    }
+                })
+            ))
+            .then(() => {
+                location.reload();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Erreur lors de la synchronisation');
+            })
+            .finally(() => {
+                this.disabled = false;
+                this.innerHTML = '<i class="bi bi-arrow-clockwise me-2"></i>{{ 'translations.actions.refresh'|trans({}, 'admin') }}';
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,233 @@
+# Administrationsoberfläche - Deutsch
+navigation:
+  dashboard: Dashboard
+  services: Dienste
+  media: Medien-Manager
+  languages: Sprachen
+  translations: Übersetzungen
+  settings: Einstellungen
+  logout: Abmelden
+
+dashboard:
+  welcome: 'Willkommen in der LandingPageCms-Verwaltung'
+  statistics: Statistiken
+  recent_activity: 'Letzte Aktivitäten'
+  quick_actions: Schnellaktionen
+
+languages:
+  title: Sprachenverwaltung
+  list_title: Sprachenliste
+  new_title: 'Neue Sprache'
+  edit_title: 'Sprache bearbeiten'
+  show_title: Sprachendetails
+  fields:
+    name: Name
+    code: Code
+    native_name: 'Nativer Name'
+    default: Standard
+    active: Aktiv
+    created_at: 'Erstellt am'
+    updated_at: 'Aktualisiert am'
+  actions:
+    new: 'Neue Sprache'
+    edit: Bearbeiten
+    delete: Löschen
+    show: 'Details anzeigen'
+    set_default: 'Als Standard festlegen'
+    activate: Aktivieren
+    deactivate: Deaktivieren
+    back_to_list: 'Zurück zur Liste'
+  messages:
+    created: 'Sprache erfolgreich erstellt'
+    updated: 'Sprache erfolgreich aktualisiert'
+    deleted: 'Sprache erfolgreich gelöscht'
+    set_as_default: 'Sprache als Standard festgelegt'
+    activated: 'Sprache aktiviert'
+    deactivated: 'Sprache deaktiviert'
+    confirm_delete: 'Sind Sie sicher, dass Sie diese Sprache löschen möchten?'
+    no_languages: 'Keine Sprachen konfiguriert'
+    create_first: 'Erste Sprache erstellen'
+  help:
+    code: 'ISO-Sprachcode (z.B.: fr, en, es)'
+    native_name: 'Sprachname in der nativen Sprache'
+    default: 'Nur eine Sprache kann als Standard festgelegt werden'
+    active: 'Inaktive Sprachen sind auf der Website nicht verfügbar'
+  media: 'Gestionnaire de médias'
+  translations: Traductions
+  settings: Paramètres
+  logout: Déconnexion
+translations:
+  title: Übersetzungsverwaltung
+  list_title: Übersetzungsdateien
+  edit_title: 'Übersetzungen bearbeiten'
+  domain: Domain
+  locale: Sprache
+  file: Datei
+  keys: Schlüssel
+  actions:
+    edit: Bearbeiten
+    refresh: Aktualisieren
+    export: Exportieren
+    import: Importieren
+  messages:
+    updated: 'Übersetzungen erfolgreich aktualisiert'
+    exported: 'Übersetzungen erfolgreich exportiert'
+    imported: 'Übersetzungen erfolgreich importiert'
+  help:
+    domain_info: 'Domains ermöglichen die Organisation von Übersetzungen nach Bereichen'
+    key_format: 'Verwenden Sie Punkt-Notation für Schlüssel (z.B.: menu.home)'
+    fallback: 'Wenn eine Übersetzung fehlt, wird die Standardsprache verwendet'
+  missing_count: manquantes
+  global_stats: 'Statistiques globales'
+  domains: Domaines
+  sync_in_progress: Synchronisation...
+  sync_error: 'Erreur lors de la synchronisation'
+  sync_error_unknown: 'Erreur lors de la synchronisation: Unknown error'
+  sync_info: 'Les traductions sont synchronisées avec les langues configurées'
+language:
+  change_interface: 'Oberflächensprache ändern'
+  switch_error: 'Fehler beim Sprachwechsel'
+forms:
+  language:
+    code:
+      label: Sprachcode
+      help: 'ISO-Sprachcode (z.B.: fr, en, es, de)'
+      placeholder: de
+    name:
+      label: Sprachname
+      help: 'Sprachname auf Deutsch'
+      placeholder: Deutsch
+    native_name:
+      label: 'Nativer Name'
+      help: 'Sprachname in der Muttersprache'
+      placeholder: Deutsch
+    is_active:
+      label: 'Aktive Sprache'
+      help: 'Deaktivieren Sie diese Sprache'
+    is_default:
+      label: Standardsprache
+      help: 'Aktivieren Sie diese Sprache als Standard'
+    sort_order:
+      label: Anzeigereihenfolge
+      help: 'Anzeigereihenfolge der Sprachen (kleiner = zuerst angezeigt)'
+  service:
+    slug:
+      label: Slug
+      help: 'Eindeutige Kennung für URL (automatisch generiert, wenn leer)'
+      placeholder: mein-service
+    is_active:
+      label: 'Aktiver Service'
+      help: 'Deaktivieren Sie diesen Service'
+    sort_order:
+      label: Anzeigereihenfolge
+      help: 'Anzeigereihenfolge der Services (kleiner = zuerst angezeigt)'
+  service_translation:
+    title:
+      label: Titel
+      placeholder: Service-Titel
+    description:
+      label: Beschreibung
+      placeholder: 'Kurze Service-Beschreibung'
+    detail:
+      label: Details
+      placeholder: 'Detaillierte Service-Beschreibung'
+    language:
+      label: Sprache
+      placeholder: 'Sprache auswählen'
+common:
+  actions:
+    title: Aktionen
+    save: Speichern
+    cancel: Abbrechen
+    delete: Löschen
+    edit: Bearbeiten
+    view: Anzeigen
+    back: Zurück
+    close: Schließen
+    confirm: Bestätigen
+    'yes': Ja
+    'no': Nein
+    new_language: 'Neue Sprache'
+    view_site: 'Voir le site'
+    actions: Actions
+  status:
+    active: Actif
+    inactive: Inactif
+    enabled: Activé
+    disabled: Désactivé
+    published: Publié
+    draft: Brouillon
+    default: 'Par défaut'
+  messages:
+    success: 'Opération réussie'
+    error: "Une erreur s'est produite"
+    confirm_action: 'Êtes-vous sûr de vouloir effectuer cette action ?'
+    no_results: 'Aucun résultat trouvé'
+    loading: Chargement...
+  form:
+    required: 'Ce champ est obligatoire'
+    invalid: "Ce champ n'est pas valide"
+    too_short: 'Ce champ est trop court'
+    too_long: 'Ce champ est trop long'
+    invalid_email: 'Adresse e-mail invalide'
+    invalid_url: 'URL invalide'
+  time:
+    just_now: "À l'instant"
+    minutes_ago: 'Il y a %count% minutes'
+    hours_ago: 'Il y a %count% heures'
+    days_ago: 'Il y a %count% jours'
+    weeks_ago: 'Il y a %count% semaines'
+    months_ago: 'vor %count% Monaten'
+media:
+  title: 'Gestionnaire de médias'
+  list_title: 'Bibliothèque de médias'
+  upload_title: 'Uploader des médias'
+  fields:
+    filename: 'Nom de fichier'
+    alt: 'Texte alternatif'
+    extension: Extension
+    url: URL
+    size: Taille
+    created_at: 'Uploadé le'
+  actions:
+    upload: 'Uploader des médias'
+    select: Sélectionner
+    insert: Insérer
+    delete: Supprimer
+    edit: Modifier
+    cancel: Annuler
+    save: Enregistrer
+    copy_url: "Copier l'URL"
+    select_files: 'Sélectionner des fichiers'
+    clear_selection: 'Effacer la sélection'
+  messages:
+    upload_success: 'Média uploadé avec succès'
+    upload_error: "Erreur lors de l'upload"
+    delete_success: 'Média supprimé avec succès'
+    delete_error: 'Erreur lors de la suppression'
+    update_success: 'Média mis à jour avec succès'
+    update_error: 'Erreur lors de la mise à jour'
+    no_media_found: 'Aucun média trouvé'
+    drag_drop_hint: 'Glissez-déposez vos fichiers ici'
+    or: ou
+    file_too_large: 'Fichier trop volumineux (max 10MB)'
+    invalid_file_type: 'Type de fichier non autorisé'
+    url_copied: 'URL copiée dans le presse-papier'
+    max_selection_reached: 'Limite de sélection atteinte'
+    confirm_delete: 'Êtes-vous sûr de vouloir supprimer ce média ?'
+  filters:
+    all_types: 'Tous les types'
+    images: Images
+    videos: Vidéos
+    audio: Audio
+    documents: Documents
+    search_placeholder: 'Rechercher un média...'
+  upload:
+    zone_title: "Zone d'upload"
+    progress_title: 'Upload en cours...'
+    results_title: Résultats
+  selection:
+    none: 'Aucun média sélectionné'
+    single: '1 média sélectionné'
+    multiple: '%count% médias sélectionnés'
+    modify: 'Modifier la sélection (%count%)'

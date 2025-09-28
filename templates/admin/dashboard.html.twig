@@ -1,0 +1,132 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}{{ 'dashboard.title'|trans({}, 'admin') }} - Administration - LandingPageCms{% endblock %}
+
+{% block body %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="bi bi-house-fill me-2 text-primary"></i>{{ 'dashboard.title'|trans({}, 'admin') }}
+    </h1>
+</div>
+
+{# Statistics cards #}
+<div class="row mb-4">
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2 stats-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">{{ 'dashboard.languages_count'|trans({}, 'admin') }}</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ languages|length }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-globe fa-2x text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2 stats-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">{{ 'dashboard.translations_count'|trans({}, 'admin') }}</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">0</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-translate fa-2x text-info"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2 stats-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">{{ 'dashboard.completion'|trans({}, 'admin') }}</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">100%</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-bar-chart fa-2x text-warning"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Quick Actions #}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-lightning-fill me-2"></i>{{ 'dashboard.quick_actions'|trans({}, 'admin') }}
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 col-lg-6 mb-3">
+                        <a href="{{ path('admin_language_new') }}" class="btn btn-success w-100">
+                            <i class="bi bi-plus-circle me-2"></i>{{ 'common.actions.new_language'|trans({}, 'admin') }}
+                        </a>
+                    </div>
+                    <div class="col-md-6 col-lg-6 mb-3">
+                        <a href="{{ path('homepage') }}" class="btn btn-outline-success w-100" target="_blank">
+                            <i class="bi bi-eye me-2"></i>{{ 'common.actions.view_site'|trans({}, 'admin') }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Languages Section #}
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-globe me-2"></i>{{ 'dashboard.configured_languages'|trans({}, 'admin') }}
+                </h5>
+                <a href="{{ path('admin_language_index') }}" class="btn btn-sm btn-outline-success">
+                    {{ 'dashboard.manage'|trans({}, 'admin') }}
+                </a>
+            </div>
+            <div class="card-body">
+                {% if languages|length > 0 %}
+                    {% for language in languages %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <strong>{{ language.name }}</strong>
+                            {% if language.default %}
+                                <span class="badge bg-primary ms-1">{{ 'common.status.default'|trans({}, 'admin') }}</span>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <span class="badge bg-{{ language.active ? 'success' : 'secondary' }}">
+                                {{ language.active ? ('common.status.active'|trans({}, 'admin')) : ('common.status.inactive'|trans({}, 'admin')) }}
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-3">
+                        <i class="bi bi-globe text-muted"></i>
+                        <p class="text-muted mb-2">{{ 'dashboard.no_language_configured'|trans({}, 'admin') }}</p>
+                        <a href="{{ path('admin_language_new') }}" class="btn btn-sm btn-success">
+                            <i class="bi bi-plus-circle me-1"></i>{{ 'dashboard.add_language'|trans({}, 'admin') }}
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

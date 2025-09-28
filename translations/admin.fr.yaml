@@ -1,0 +1,225 @@
+# Interface Administration - Français
+navigation:
+  dashboard: Tableau de bord
+  services: Services
+  media: Gestionnaire de médias
+  languages: Langues
+  translations: Traductions
+  settings: Paramètres
+  logout: Déconnexion
+
+dashboard:
+  title: Tableau de bord
+  welcome: Bienvenue dans l'administration d'LandingPageCms
+  statistics: Statistiques
+  recent_activity: Activité récente
+  quick_actions: Actions rapides
+  total_languages: Langues configurées
+  translation_progress: Progression des traductions
+  manage_languages: Gérer les langues
+  languages_count: Langues
+  translations_count: Traductions
+  completion: Complétude
+  view_all: Voir tous
+  configured_languages: Langues configurées
+  manage: Gérer
+  no_language_configured: Aucune langue configurée
+  add_language: Ajouter une langue
+  updated: Mis à jour
+  slug: Slug
+  status: Statut
+
+languages:
+  title: Gestion des langues
+  list_title: Liste des langues
+  new_title: Nouvelle langue
+  edit_title: Modifier la langue
+  show_title: Détails de la langue
+  fields:
+    name: Nom
+    code: Code
+    native_name: Nom natif
+    default: Par défaut
+    active: Active
+    created_at: Créé le
+    updated_at: Mis à jour le
+  actions:
+    new: Nouvelle langue
+    edit: Modifier
+    delete: Supprimer
+    show: Voir les détails
+    set_default: Définir par défaut
+    activate: Activer
+    deactivate: Désactiver
+    back_to_list: Retour à la liste
+  messages:
+    created: Langue créée avec succès
+    updated: Langue mise à jour avec succès
+    deleted: Langue supprimée avec succès
+    set_as_default: Langue définie par défaut
+    activated: Langue activée
+    deactivated: Langue désactivée
+    confirm_delete: Êtes-vous sûr de vouloir supprimer cette langue ?
+    no_languages: Aucune langue configurée
+    create_first: Créer la première langue
+  help:
+    code: "Code ISO de la langue (ex: fr, en, es)"
+    native_name: Nom de la langue dans sa langue native
+    default: Une seule langue peut être définie par défaut
+    active: Les langues inactives ne sont pas disponibles sur le site
+
+media:
+  title: Gestionnaire de médias
+  list_title: Bibliothèque de médias
+  upload_title: Uploader des médias
+  fields:
+    filename: Nom de fichier
+    alt: Texte alternatif
+    extension: Extension
+    url: URL
+    size: Taille
+    created_at: Uploadé le
+  actions:
+    upload: Uploader des médias
+    select: Sélectionner
+    insert: Insérer
+    delete: Supprimer
+    edit: Modifier
+    cancel: Annuler
+    save: Enregistrer
+    copy_url: Copier l'URL
+    select_files: Sélectionner des fichiers
+    clear_selection: Effacer la sélection
+  messages:
+    upload_success: Média uploadé avec succès
+    upload_error: Erreur lors de l'upload
+    delete_success: Média supprimé avec succès
+    delete_error: Erreur lors de la suppression
+    update_success: Média mis à jour avec succès
+    update_error: Erreur lors de la mise à jour
+    no_media_found: Aucun média trouvé
+    drag_drop_hint: Glissez-déposez vos fichiers ici
+    or: ou
+    file_too_large: Fichier trop volumineux (max 10MB)
+    invalid_file_type: Type de fichier non autorisé
+    url_copied: URL copiée dans le presse-papier
+    max_selection_reached: Limite de sélection atteinte
+    confirm_delete: Êtes-vous sûr de vouloir supprimer ce média ?
+  filters:
+    all_types: Tous les types
+    images: Images
+    videos: Vidéos
+    audio: Audio
+    documents: Documents
+    search_placeholder: Rechercher un média...
+  upload:
+    zone_title: Zone d'upload
+    progress_title: Upload en cours...
+    results_title: Résultats
+  selection:
+    none: Aucun média sélectionné
+    single: 1 média sélectionné
+    multiple: "%count% médias sélectionnés"
+    modify: "Modifier la sélection (%count%)"
+
+translations:
+  title: Gestion des traductions
+  list_title: Fichiers de traduction
+  edit_title: Modifier les traductions
+  domain: Domaine
+  locale: Langue
+  file: Fichier
+  keys: Clés
+  missing_count: manquantes
+  global_stats: Statistiques globales
+  domains: Domaines
+  sync_in_progress: Synchronisation...
+  sync_error: Erreur lors de la synchronisation
+  sync_error_unknown: "Erreur lors de la synchronisation: Unknown error"
+  sync_info: Les traductions sont synchronisées avec les langues configurées
+  actions:
+    edit: Modifier
+    refresh: Actualiser
+    export: Exporter
+    import: Importer
+  messages:
+    updated: Traductions mises à jour avec succès
+    exported: Traductions exportées avec succès
+    imported: Traductions importées avec succès
+  help:
+    domain_info: Les domaines permettent d'organiser les traductions par section
+    key_format: "Utilisez la notation à points pour organiser les clés (ex: menu.home)"
+    fallback: Si une traduction manque, la langue par défaut sera utilisée
+
+language:
+  change_interface: Changer la langue de l'interface
+  switch_error: Erreur lors du changement de langue
+
+forms:
+  language:
+    code:
+      label: Code de la langue
+      help: "Code ISO de la langue (ex: fr, en, es, de)"
+      placeholder: fr
+    name:
+      label: Nom de la langue
+      help: Nom de la langue en français
+      placeholder: Français
+    native_name:
+      label: Nom natif
+      help: Nom de la langue dans sa langue native
+      placeholder: Français
+    is_active:
+      label: Langue active
+      help: Décochez pour désactiver cette langue
+    is_default:
+      label: Langue par défaut
+      help: Cochez pour définir cette langue comme langue par défaut
+    sort_order:
+      label: Ordre d'affichage
+      help: "Ordre d'affichage des langues (plus petit = affiché en premier)"
+
+common:
+  actions:
+    title: Actions
+    save: Enregistrer
+    cancel: Annuler
+    delete: Supprimer
+    edit: Modifier
+    view: Voir
+    back: Retour
+    close: Fermer
+    confirm: Confirmer
+    yes: Oui
+    no: Non
+    new_language: Nouvelle langue
+    view_site: Voir le site
+    actions: Actions
+  status:
+    active: Actif
+    inactive: Inactif
+    enabled: Activé
+    disabled: Désactivé
+    published: Publié
+    draft: Brouillon
+    default: Par défaut
+  messages:
+    success: Opération réussie
+    error: Une erreur s'est produite
+    confirm_action: Êtes-vous sûr de vouloir effectuer cette action ?
+    no_results: Aucun résultat trouvé
+    loading: Chargement...
+  form:
+    required: Ce champ est obligatoire
+    invalid: Ce champ n'est pas valide
+    too_short: Ce champ est trop court
+    too_long: Ce champ est trop long
+    invalid_email: Adresse e-mail invalide
+    invalid_url: URL invalide
+  time:
+    just_now: À l'instant
+    minutes_ago: 'Il y a %count% minutes'
+    hours_ago: 'Il y a %count% heures'
+    days_ago: 'Il y a %count% jours'
+    weeks_ago: 'Il y a %count% semaines'
+    months_ago: 'Il y a %count% mois'

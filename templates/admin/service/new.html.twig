@@ -1,0 +1,209 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Nouveau Service{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3">Nouveau Service</h1>
+                <a href="{{ path('admin_service_index') }}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Retour
+                </a>
+            </div>
+
+            <form method="post" class="needs-validation" novalidate>
+                <div class="row">
+                    <!-- Service Configuration -->
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Configuration du Service</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="slug" class="form-label">Slug (URL)</label>
+                                    <input type="text" class="form-control" id="slug" name="slug" 
+                                           value="{{ service.slug ?? '' }}" 
+                                           placeholder="Sera généré automatiquement">
+                                    <div class="form-text">Laissez vide pour génération automatique</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="sortOrder" class="form-label">Ordre de tri</label>
+                                    <input type="number" class="form-control" id="sortOrder" name="sortOrder" 
+                                           value="{{ service.sortOrder }}" min="0">
+                                </div>
+
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="isActive" 
+                                               name="isActive" value="1" 
+                                               {{ service.isActive ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="isActive">
+                                            Service actif
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Sélecteur d'image -->
+                                {% include 'components/media_selector.html.twig' with {
+                                    'selectedMedia': service.image,
+                                    'inputName': 'imageId',
+                                    'label': 'Image du service'
+                                } %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Translations -->
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Traductions</h5>
+                            </div>
+                            <div class="card-body">
+                                <!-- Language Tabs -->
+                                <ul class="nav nav-tabs" id="languageTabs" role="tablist">
+                                    {% for language in languages %}
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link {{ loop.first ? 'active' : '' }}" 
+                                                    id="{{ language.code }}-tab" 
+                                                    data-bs-toggle="tab" 
+                                                    data-bs-target="#{{ language.code }}-content" 
+                                                    type="button" role="tab">
+                                                {{ language.nativeName }}
+                                                {% if language.isDefault %}
+                                                    <span class="badge bg-primary ms-1">Défaut</span>
+                                                {% endif %}
+                                            </button>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+
+                                <!-- Language Content -->
+                                <div class="tab-content" id="languageTabsContent">
+                                    {% for language in languages %}
+                                        <div class="tab-pane fade {{ loop.first ? 'show active' : '' }}" 
+                                             id="{{ language.code }}-content" 
+                                             role="tabpanel">
+                                            <div class="p-3">
+                                                <div class="mb-3">
+                                                    <label for="title_{{ language.code }}" class="form-label">
+                                                        Titre *
+                                                    </label>
+                                                    <input type="text" 
+                                                           class="form-control" 
+                                                           id="title_{{ language.code }}" 
+                                                           name="translations[{{ language.code }}][title]" 
+                                                           required>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label for="description_{{ language.code }}" class="form-label">
+                                                        Description
+                                                    </label>
+                                                    <textarea class="form-control" 
+                                                              id="description_{{ language.code }}" 
+                                                              name="translations[{{ language.code }}][description]" 
+                                                              rows="5"></textarea>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="mb-3">
+                                                            <label for="metaTitle_{{ language.code }}" class="form-label">
+                                                                Méta titre (SEO)
+                                                            </label>
+                                                            <input type="text" 
+                                                                   class="form-control" 
+                                                                   id="metaTitle_{{ language.code }}" 
+                                                                   name="translations[{{ language.code }}][metaTitle]" 
+                                                                   maxlength="60">
+                                                            <div class="form-text">Recommandé: 50-60 caractères</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="mb-3">
+                                                            <label for="metaDescription_{{ language.code }}" class="form-label">
+                                                                Méta description (SEO)
+                                                            </label>
+                                                            <textarea class="form-control" 
+                                                                      id="metaDescription_{{ language.code }}" 
+                                                                      name="translations[{{ language.code }}][metaDescription]" 
+                                                                      rows="3" 
+                                                                      maxlength="160"></textarea>
+                                                            <div class="form-text">Recommandé: 150-160 caractères</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{{ path('admin_service_index') }}" class="btn btn-secondary">Annuler</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-floppy"></i> Créer le service
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-generate slug from default language title
+const defaultTitleInput = document.getElementById('title_{{ defaultLanguage.code }}');
+const slugInput = document.getElementById('slug');
+
+if (defaultTitleInput && slugInput) {
+    defaultTitleInput.addEventListener('input', function() {
+        if (!slugInput.value) {
+            const slug = this.value
+                .toLowerCase()
+                .replace(/[^\w\s-]/g, '')
+                .replace(/[\s_-]+/g, '-')
+                .replace(/^-+|-+$/g, '');
+            slugInput.value = slug;
+        }
+    });
+}
+
+// Character counters for meta fields
+function addCharacterCounter(inputId, maxLength) {
+    const input = document.getElementById(inputId);
+    if (input) {
+        const counter = document.createElement('small');
+        counter.className = 'text-muted';
+        input.parentNode.appendChild(counter);
+        
+        function updateCounter() {
+            const remaining = maxLength - input.value.length;
+            counter.textContent = `${input.value.length}/${maxLength} caractères`;
+            counter.classList.toggle('text-warning', remaining < 10);
+            counter.classList.toggle('text-danger', remaining < 0);
+        }
+        
+        input.addEventListener('input', updateCounter);
+        updateCounter();
+    }
+}
+
+// Add counters for meta fields
+{% for language in languages %}
+addCharacterCounter('metaTitle_{{ language.code }}', 60);
+addCharacterCounter('metaDescription_{{ language.code }}', 160);
+{% endfor %}
+</script>
+{% endblock %}

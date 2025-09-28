@@ -1,0 +1,144 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Mon Profil{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">Mon Profil</h1>
+                <a href="{{ path('admin_dashboard') }}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Retour au tableau de bord
+                </a>
+            </div>
+
+            {% for flash_error in app.flashes('error') %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ flash_error }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+
+            {% for flash_success in app.flashes('success') %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ flash_success }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+
+            <div class="row justify-content-center">
+                <div class="col-md-8 col-lg-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Mes informations personnelles</h5>
+                        </div>
+                        <div class="card-body">
+                            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ form_label(form.firstName) }}
+                                    {{ form_widget(form.firstName) }}
+                                    {{ form_errors(form.firstName) }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    {{ form_label(form.lastName) }}
+                                    {{ form_widget(form.lastName) }}
+                                    {{ form_errors(form.lastName) }}
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                {{ form_label(form.email) }}
+                                {{ form_widget(form.email) }}
+                                {{ form_errors(form.email) }}
+                            </div>
+
+                            <div class="mb-3">
+                                <h6>Changer le mot de passe (optionnel)</h6>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        {{ form_label(form.plainPassword.first) }}
+                                        {{ form_widget(form.plainPassword.first) }}
+                                        {{ form_errors(form.plainPassword.first) }}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        {{ form_label(form.plainPassword.second) }}
+                                        {{ form_widget(form.plainPassword.second) }}
+                                        {{ form_errors(form.plainPassword.second) }}
+                                    </div>
+                                </div>
+                                <small class="form-text text-muted">
+                                    Laissez vide pour conserver votre mot de passe actuel.
+                                </small>
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <a href="{{ path('admin_dashboard') }}" class="btn btn-secondary">
+                                    <i class="bi bi-x"></i> Annuler
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-floppy"></i> Sauvegarder mes informations
+                                </button>
+                            </div>
+
+                            {{ form_end(form) }}
+                        </div>
+                    </div>
+
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Informations du compte</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Rôles :</strong><br>
+                                    {% for role in user.roles %}
+                                        {% if role == 'ROLE_SUPER_ADMIN' %}
+                                            <span class="badge bg-danger me-1">Super Administrateur</span>
+                                        {% elseif role == 'ROLE_ADMIN' %}
+                                            <span class="badge bg-warning me-1">Administrateur</span>
+                                        {% elseif role == 'ROLE_USER' %}
+                                            <span class="badge bg-info me-1">Utilisateur</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary me-1">{{ role }}</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Statut :</strong><br>
+                                    {% if user.isActive %}
+                                        <span class="badge bg-success">Actif</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Inactif</span>
+                                    {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Membre depuis :</strong><br>
+                                    {{ user.createdAt|date('d/m/Y') }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    {% if user.lastLoginAt %}
+                                        <p><strong>Dernière connexion :</strong><br>
+                                        {{ user.lastLoginAt|date('d/m/Y à H:i') }}</p>
+                                    {% else %}
+                                        <p><strong>Dernière connexion :</strong><br>
+                                        <em class="text-muted">Première connexion</em></p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

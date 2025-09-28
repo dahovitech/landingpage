@@ -1,0 +1,210 @@
+{% extends 'frontend/base.html.twig' %}
+
+{% block title %}{{ translation.metaTitle ? translation.metaTitle : translation.title }} - {{ parent() }}{% endblock %}
+
+{% block meta_description %}{{ translation.metaDescription ? translation.metaDescription : translation.description|slice(0, 160) }}{% endblock %}
+
+{% block body %}
+<div class="container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="my-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{{ path('frontend_homepage', {'_locale': locale}) }}">{{ 'navigation.home'|trans }}</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{{ path('frontend_services_index', {'_locale': locale}) }}">{{ 'navigation.services'|trans }}</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                {{ translation.title }}
+            </li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Service Header -->
+            <div class="service-header mb-4">
+                {% if service.image %}
+                    <div class="service-image mb-4">
+                        <img src="/{{ service.image.webPath }}" 
+                             class="img-fluid rounded shadow" 
+                             alt="{{ translation.title }}"
+                             loading="lazy">
+                    </div>
+                {% endif %}
+                
+                <h1 class="display-5 mb-3">{{ translation.title }}</h1>
+                
+                {% if translation.description %}
+                    <div class="service-description">
+                        {{ translation.description|nl2br }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Language Availability Notice -->
+            {% if availableTranslations|length > 1 %}
+                <div class="alert alert-light border" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-globe me-2 text-primary"></i>
+                        <div class="flex-grow-1">
+                            <strong>{{ 'service.available_languages'|trans }}</strong>
+                            <div class="mt-1">
+                                {% for translationData in availableTranslations %}
+                                    <a href="{{ translationData.url }}" 
+                                       class="badge bg-primary text-decoration-none me-1
+                                       {{ translationData.language.code == locale ? 'bg-dark' : '' }}">
+                                        {{ translationData.language.nativeName }}
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Back to Services -->
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <a href="{{ path('frontend_services_index', {'_locale': locale}) }}" 
+                       class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-left me-2"></i>
+                        {{ 'service.back_to_services'|trans }}
+                    </a>
+                </div>
+            </div>
+
+            <!-- Contact CTA -->
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <h5 class="card-title">{{ 'service.interested'|trans }}</h5>
+                    <p class="card-text text-muted">
+                        {{ 'service.contact_description'|trans }}
+                    </p>
+                    <a href="{{ path('frontend_contact', {'_locale': locale}) }}" 
+                       class="btn btn-success">
+                        <i class="bi bi-envelope me-2"></i>
+                        {{ 'service.contact_us'|trans }}
+                    </a>
+                </div>
+            </div>
+
+            <!-- Other Services -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">{{ 'service.other_services'|trans }}</h6>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <!-- This would be populated with other services -->
+                        <div class="text-muted small text-center py-3">
+                            {{ 'service.loading_other_services'|trans }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "{{ translation.title|escape('js') }}",
+        "description": "{{ translation.description ? translation.description|striptags|slice(0, 200)|escape('js') : '' }}",
+        {% if service.image %}
+        "image": "{{ app.request.getSchemeAndHttpHost() }}/{{ service.image.webPath }}",
+        {% endif %}
+        "provider": {
+            "@type": "Organization",
+            "name": "LandingPageCms"
+        },
+        "url": "{{ app.request.uri }}"
+    }
+    </script>
+</div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .service-image img {
+            max-height: 400px;
+            width: 100%;
+            object-fit: cover;
+        }
+        
+        .service-description {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #555;
+        }
+        
+        .breadcrumb {
+            background: none;
+            padding: 0;
+        }
+        
+        .card {
+            border: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .display-5 {
+                font-size: 1.8rem;
+            }
+            
+            .service-description {
+                font-size: 1rem;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+    // Load other services via AJAX
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('{{ path('frontend_api_services', {'_locale': locale}) }}')
+            .then(response => response.json())
+            .then(services => {
+                const container = document.querySelector('.list-group');
+                const currentServiceId = {{ service.id }};
+                
+                // Filter out current service and limit to 5
+                const otherServices = services
+                    .filter(s => s.id !== currentServiceId)
+                    .slice(0, 5);
+                
+                if (otherServices.length > 0) {
+                    container.innerHTML = otherServices.map(service => `
+                        <a href="${service.url}" class="list-group-item list-group-item-action">
+                            <div class="d-flex align-items-center">
+                                ${service.image ? `<img src="${service.image.url}" alt="${service.title}" class="me-3 rounded" style="width: 40px; height: 40px; object-fit: cover;">` : ''}
+                                <div>
+                                    <h6 class="mb-1">${service.title}</h6>
+                                    <small class="text-muted">${service.description.length > 60 ? service.description.substring(0, 60) + '...' : service.description}</small>
+                                </div>
+                            </div>
+                        </a>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<div class="text-muted small text-center py-3">{{ 'service.no_other_services'|trans }}</div>';
+                }
+            })
+            .catch(error => {
+                console.error('Error loading other services:', error);
+                const container = document.querySelector('.list-group');
+                container.innerHTML = '<div class="text-muted small text-center py-3">{{ 'service.error_loading_services'|trans }}</div>';
+            });
+    });
+    </script>
+{% endblock %}

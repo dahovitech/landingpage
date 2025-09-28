@@ -1,0 +1,124 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}{{ language.name }} - Administration - LandingPageCms{% endblock %}
+
+{% block body %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="bi bi-eye me-2 text-info"></i>{{ language.name }}
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{{ path('admin_language_edit', {id: language.id}) }}" class="btn btn-primary me-2">
+            <i class="bi bi-pencil me-2"></i>Modifier
+        </a>
+        <a href="{{ path('admin_language_index') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Retour à la liste
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-info-circle me-2"></i>Détails de la langue
+                </h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">Code :</dt>
+                    <dd class="col-sm-9">
+                        <span class="badge bg-primary">{{ language.code|upper }}</span>
+                    </dd>
+                    
+                    <dt class="col-sm-3">Nom :</dt>
+                    <dd class="col-sm-9">{{ language.name }}</dd>
+                    
+                    <dt class="col-sm-3">Nom natif :</dt>
+                    <dd class="col-sm-9">{{ language.nativeName }}</dd>
+                    
+                    <dt class="col-sm-3">Statut :</dt>
+                    <dd class="col-sm-9">
+                        {% if language.active %}
+                            <span class="badge bg-success">Actif</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Inactif</span>
+                        {% endif %}
+                        {% if language.default %}
+                            <span class="badge bg-primary ms-1">Par défaut</span>
+                        {% endif %}
+                    </dd>
+                    
+                    <dt class="col-sm-3">Ordre d'affichage :</dt>
+                    <dd class="col-sm-9">
+                        <span class="badge bg-info">{{ language.sortOrder }}</span>
+                    </dd>
+                    
+                    <dt class="col-sm-3">Traductions :</dt>
+                    <dd class="col-sm-9">
+                        <span class="badge bg-info">{{ language.serviceTranslations|length }} traduction(s)</span>
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="bi bi-lightning-fill me-2"></i>Actions rapides
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ path('admin_language_edit', {id: language.id}) }}" class="btn btn-primary">
+                        <i class="bi bi-pencil me-2"></i>Modifier
+                    </a>
+                    
+                    {% if not language.default %}
+                        <form method="post" action="{{ path('admin_language_set_default', {id: language.id}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('set_default' ~ language.id) }}">
+                            <button type="submit" class="btn btn-warning w-100" 
+                                    {% if not language.active %}disabled title="Langue désactivée"{% endif %}>
+                                <i class="bi bi-star me-2"></i>Définir comme défaut
+                            </button>
+                        </form>
+                    {% endif %}
+                    
+                    <form method="post" action="{{ path('admin_language_toggle_status', {id: language.id}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('toggle_status' ~ language.id) }}">
+                        <button type="submit" 
+                                class="btn btn-{{ language.active ? 'warning' : 'success' }} w-100"
+                                {% if language.default and language.active %}disabled title="Impossible de désactiver la langue par défaut"{% endif %}>
+                            <i class="bi bi-{{ language.active ? 'pause' : 'play' }}-fill me-2"></i>
+                            {{ language.active ? 'Désactiver' : 'Activer' }}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        {% if not language.default %}
+            <div class="card mt-3">
+                <div class="card-header bg-danger text-white">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-exclamation-triangle me-2"></i>Zone de danger
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Supprimer cette langue supprimera également {{ language.serviceTranslations|length }} traduction(s).</p>
+                    <form method="post" action="{{ path('admin_language_delete', {id: language.id}) }}" 
+                          onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette langue ?')">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ language.id) }}">
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="bi bi-trash me-2"></i>Supprimer
+                        </button>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

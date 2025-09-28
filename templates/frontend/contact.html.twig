@@ -1,0 +1,117 @@
+{% extends 'frontend/base.html.twig' %}
+
+{% block title %}{{ 'contact.title'|trans }} - {{ parent() }}{% endblock %}
+
+{% block meta_description %}{{ 'contact.meta_description'|trans }}{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <!-- Page Header -->
+    <div class="row text-center mb-5">
+        <div class="col-12">
+            <h1 class="display-4 mb-3">{{ 'contact.title'|trans }}</h1>
+            <p class="lead text-muted">{{ 'contact.subtitle'|trans }}</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Contact Information -->
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-envelope text-primary mb-3" style="font-size: 3rem;"></i>
+                    <h5 class="fw-bold">{{ 'contact.email.title'|trans }}</h5>
+                    <p class="text-muted">{{ 'contact.email.description'|trans }}</p>
+                    <a href="mailto:contact@landingpagecms.com" class="btn btn-outline-primary">
+                        contact@landingpagecms.com
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-telephone text-primary mb-3" style="font-size: 3rem;"></i>
+                    <h5 class="fw-bold">{{ 'contact.phone.title'|trans }}</h5>
+                    <p class="text-muted">{{ 'contact.phone.description'|trans }}</p>
+                    <a href="tel:+33123456789" class="btn btn-outline-primary">
+                        +33 1 23 45 67 89
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-geo-alt text-primary mb-3" style="font-size: 3rem;"></i>
+                    <h5 class="fw-bold">{{ 'contact.address.title'|trans }}</h5>
+                    <p class="text-muted">{{ 'contact.address.description'|trans }}</p>
+                    <address class="mb-0">
+                        123 Avenue des Exemples<br>
+                        75001 Paris, France
+                    </address>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Form -->
+    <div class="row mt-5">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h3 class="fw-bold mb-0">{{ 'contact.form.title'|trans }}</h3>
+                </div>
+                <div class="card-body">
+                    <form id="contactForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="firstName" class="form-label">{{ 'contact.form.first_name'|trans }}</label>
+                                <input type="text" class="form-control" id="firstName" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="lastName" class="form-label">{{ 'contact.form.last_name'|trans }}</label>
+                                <input type="text" class="form-control" id="lastName" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">{{ 'contact.form.email'|trans }}</label>
+                            <input type="email" class="form-control" id="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">{{ 'contact.form.subject'|trans }}</label>
+                            <input type="text" class="form-control" id="subject" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="message" class="form-label">{{ 'contact.form.message'|trans }}</label>
+                            <textarea class="form-control" id="message" rows="5" required></textarea>
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-send me-2"></i>{{ 'contact.form.send'|trans }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_javascripts %}
+    {{ parent() }}
+    <script>
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Here you would typically send the form data to your server
+            alert('{{ 'contact.form.success_message'|trans }}');
+            
+            // Reset form
+            this.reset();
+        });
+    </script>
+{% endblock %}

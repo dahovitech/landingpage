@@ -1,0 +1,331 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}{{ 'translations.edit_title'|trans({}, 'admin') }} - {{ domain }}.{{ locale }} - Administration - LandingPageCms{% endblock %}
+
+{% block body %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="bi bi-translate me-2 text-info"></i>{{ 'translations.edit_title'|trans({}, 'admin') }}
+        <span class="text-muted">{{ domain }}.{{ locale }}</span>
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{{ path('admin_translation_index') }}" class="btn btn-outline-secondary me-2">
+            <i class="bi bi-arrow-left me-2"></i>{{ 'common.actions.back'|trans({}, 'admin') }}
+        </a>
+        <a href="{{ path('admin_translation_export', {domain: domain, locale: locale}) }}" class="btn btn-outline-primary">
+            <i class="bi bi-download me-2"></i>{{ 'translations.actions.export'|trans({}, 'admin') }}
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-9">
+        <form id="translationForm" data-domain="{{ domain }}" data-locale="{{ locale }}">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">
+                            <span class="badge bg-primary me-2">{{ locale|upper }}</span>
+                            {{ language.name }}
+                            {% if language.default %}
+                                <i class="bi bi-star-fill text-warning ms-1" title="{{ 'services.translation_status.default_language'|trans({}, 'admin') }}"></i>
+                            {% endif %}
+                        </h5>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="showReference" 
+                                   {% if defaultTranslations|length > 0 %}{% else %}disabled{% endif %}>
+                            <label class="form-check-label" for="showReference">
+                                Afficher la référence
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if translations|length > 0 %}
+                        <div class="translation-editor">
+                            {% for key, value in translations %}
+                                <div class="translation-item mb-4 pb-3 border-bottom">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <label for="translation_{{ key|replace({'.': '_'}) }}" class="form-label">
+                                                <code class="text-primary">{{ key }}</code>
+                                            </label>
+                                            {% if defaultTranslations[key] is defined and not isDefaultLanguage %}
+                                                <div class="reference-text" style="display: none;">
+                                                    <small class="text-muted d-block mt-1">
+                                                        <strong>Référence:</strong><br>
+                                                        {{ defaultTranslations[key] }}
+                                                    </small>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-9">
+                                            {% if value|length > 100 %}
+                                                <textarea name="translations[{{ key }}]" 
+                                                          id="translation_{{ key|replace({'.': '_'}) }}"
+                                                          class="form-control translation-field" 
+                                                          rows="3"
+                                                          placeholder="Entrez la traduction...">{{ value }}</textarea>
+                                            {% else %}
+                                                <input type="text" 
+                                                       name="translations[{{ key }}]" 
+                                                       id="translation_{{ key|replace({'.': '_'}) }}"
+                                                       class="form-control translation-field" 
+                                                       value="{{ value }}"
+                                                       placeholder="Entrez la traduction...">
+                                            {% endif %}
+                                            
+                                            {% if not isDefaultLanguage and (value is empty or value|trim is empty) %}
+                                                <div class="form-text text-warning">
+                                                    <i class="bi bi-exclamation-triangle me-1"></i>
+                                                    Traduction manquante
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-translate display-1 text-muted mb-3"></i>
+                            <h4 class="text-muted">Aucune traduction trouvée</h4>
+                            <p class="text-muted">Ce fichier de traduction semble être vide.</p>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="text-muted">
+                            <small>
+                                <i class="bi bi-info-circle me-1"></i>
+                                {{ translations|length }} clés de traduction
+                            </small>
+                        </div>
+                        <div>
+                            <button type="button" class="btn btn-outline-secondary me-2" onclick="resetForm()">
+                                <i class="bi bi-arrow-clockwise me-1"></i>{{ 'common.actions.cancel'|trans({}, 'admin') }}
+                            </button>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-lg me-2"></i>{{ 'common.actions.save'|trans({}, 'admin') }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <div class="col-lg-3">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="bi bi-info-circle me-2"></i>Informations
+                </h6>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-5">{{ 'translations.domain'|trans({}, 'admin') }}:</dt>
+                    <dd class="col-sm-7"><code>{{ domain }}</code></dd>
+                    
+                    <dt class="col-sm-5">{{ 'translations.locale'|trans({}, 'admin') }}:</dt>
+                    <dd class="col-sm-7">
+                        <span class="badge bg-primary">{{ locale|upper }}</span>
+                    </dd>
+                    
+                    <dt class="col-sm-5">{{ 'languages.fields.name'|trans({}, 'admin') }}:</dt>
+                    <dd class="col-sm-7">{{ language.name }}</dd>
+                    
+                    <dt class="col-sm-5">Nom natif:</dt>
+                    <dd class="col-sm-7">{{ language.nativeName }}</dd>
+                    
+                    {% if not isDefaultLanguage %}
+                        <dt class="col-sm-5">Complétude:</dt>
+                        <dd class="col-sm-7">
+                            {% set completed = translations|length - (translations|filter((v, k) => v is empty or v|trim is empty)|length) %}
+                            {% set total = translations|length %}
+                            {% set percentage = total > 0 ? ((completed / total) * 100)|round(1) : 100 %}
+                            
+                            <div class="progress mb-1" style="height: 8px;">
+                                <div class="progress-bar 
+                                    {% if percentage == 100 %}bg-success
+                                    {% elseif percentage >= 75 %}bg-info
+                                    {% elseif percentage >= 50 %}bg-warning
+                                    {% else %}bg-danger{% endif %}"
+                                     style="width: {{ percentage }}%">
+                                </div>
+                            </div>
+                            <small>{{ percentage }}% ({{ completed }}/{{ total }})</small>
+                        </dd>
+                    {% endif %}
+                </dl>
+            </div>
+        </div>
+
+        {% if not isDefaultLanguage and defaultTranslations|length > 0 %}
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-lightbulb me-2"></i>{{ 'services.tabs.tips'|trans({}, 'admin') }}
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            <small>Utilisez le bouton "Afficher la référence" pour voir les traductions de référence</small>
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            <small>Les champs vides utiliseront la langue par défaut</small>
+                        </li>
+                        <li class="mb-0">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            <small>Sauvegardez régulièrement vos modifications</small>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="bi bi-keyboard me-2"></i>Raccourcis clavier
+                </h6>
+            </div>
+            <div class="card-body">
+                <dl class="row small">
+                    <dt class="col-6">Ctrl + S</dt>
+                    <dd class="col-6">Sauvegarder</dd>
+                    
+                    <dt class="col-6">Ctrl + R</dt>
+                    <dd class="col-6">Référence on/off</dd>
+                    
+                    <dt class="col-6">Esc</dt>
+                    <dd class="col-6">Annuler</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('translationForm');
+            const showReference = document.getElementById('showReference');
+            const referenceTexts = document.querySelectorAll('.reference-text');
+            
+            // Show/hide reference texts
+            showReference.addEventListener('change', function() {
+                referenceTexts.forEach(ref => {
+                    ref.style.display = this.checked ? 'block' : 'none';
+                });
+            });
+            
+            // Form submission
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalContent = submitBtn.innerHTML;
+                
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="bi bi-spinner-border spinner-border-sm me-2"></i>{{ "admin.common.messages.loading"|trans }}';
+                
+                const formData = new FormData(form);
+                const domain = form.dataset.domain;
+                const locale = form.dataset.locale;
+                
+                fetch(`{{ path('admin_translation_update', {domain: '__DOMAIN__', locale: '__LOCALE__'})|replace({'__DOMAIN__': '', '__LOCALE__': ''}) }}${domain}/${locale}`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showNotification('{{ "admin.translations.messages.updated"|trans }}', 'success');
+                    } else {
+                        showNotification(data.error || 'Une erreur est survenue', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Une erreur est survenue lors de la sauvegarde', 'error');
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalContent;
+                });
+            });
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.key === 's') {
+                    e.preventDefault();
+                    form.dispatchEvent(new Event('submit'));
+                } else if (e.ctrlKey && e.key === 'r') {
+                    e.preventDefault();
+                    showReference.checked = !showReference.checked;
+                    showReference.dispatchEvent(new Event('change'));
+                } else if (e.key === 'Escape') {
+                    resetForm();
+                }
+            });
+            
+            // Auto-save indicator for form fields
+            const translationFields = document.querySelectorAll('.translation-field');
+            translationFields.forEach(field => {
+                field.addEventListener('input', debounce(function() {
+                    // Visual feedback for unsaved changes
+                    this.style.borderLeft = '3px solid #ffc107';
+                }, 300));
+            });
+        });
+        
+        function resetForm() {
+            if (confirm('{{ "admin.common.messages.confirm_action"|trans }}')) {
+                location.reload();
+            }
+        }
+        
+        function showNotification(message, type) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed`;
+            notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            notification.innerHTML = `
+                <i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+        
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func.apply(this, args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+    </script>
+{% endblock %}

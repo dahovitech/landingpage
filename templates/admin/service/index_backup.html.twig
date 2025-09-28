@@ -1,0 +1,238 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Gestion des Services{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3">Gestion des Services</h1>
+                <div>
+                    <a href="{{ path('admin_service_translation_tools') }}" class="btn btn-info btn-sm me-2">
+                        <i class="bi bi-tools"></i> Outils de traduction
+                    </a>
+                    <a href="{{ path('admin_service_new') }}" class="btn btn-primary">
+                        <i class="bi bi-plus"></i> Nouveau service
+                    </a>
+                </div>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="row mb-4">
+                {% for languageCode, stats in statistics %}
+                <div class="col-md-3 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">{{ stats.language.nativeName }}</h6>
+                                    <h4 class="text-primary">{{ stats.completion_percentage }}%</h4>
+                                </div>
+                                <div class="text-muted">
+                                    <i class="bi bi-translate fa-2x"></i>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <small class="text-muted">
+                                    {{ stats.complete }}/{{ stats.total_services }} complets
+                                </small>
+                                <div class="progress mt-1" style="height: 4px;">
+                                    <div class="progress-bar" role="progressbar" 
+                                         style="width: {{ stats.completion_percentage }}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Services Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Liste des Services</h5>
+                </div>
+                <div class="card-body">
+                    {% if services is empty %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-inbox fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Aucun service disponible.</p>
+                            <a href="{{ path('admin_service_new') }}" class="btn btn-primary">
+                                Créer le premier service
+                            </a>
+                        </div>
+                    {% else %}
+                        <form id="bulk-form" method="post" action="{{ path('admin_service_bulk_actions') }}">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="input-group">
+                                        <select name="action" class="form-select" required>
+                                            <option value="">Actions en lot...</option>
+                                            <option value="activate">Activer</option>
+                                            <option value="deactivate">Désactiver</option>
+                                            <option value="delete">Supprimer</option>
+                                        </select>
+                                        <button type="submit" class="btn btn-secondary">Exécuter</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                <input type="checkbox" id="select-all">
+                                            </th>
+                                            <th>Service</th>
+                                            <th>Statut</th>
+                                            <th>Traductions</th>
+                                            <th>Complétion</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for serviceData in services %}
+                                            {% set service = serviceData.service %}
+                                            <tr>
+                                                <td>
+                                                    <input type="checkbox" name="service_ids[]" value="{{ service.id }}" class="service-checkbox">
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        {% if service.image %}
+                                                            <img src="/{{ service.image.webPath }}" alt="{{ service.image.alt }}" 
+                                                                 class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                                        {% endif %}
+                                                        <div>
+                                                            <strong>{{ service.title }}</strong><br>
+                                                            <small class="text-muted">{{ service.slug }}</small>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    {% if service.isActive %}
+                                                        <span class="badge bg-success">Actif</span>
+                                                    {% else %}
+                                                        <span class="badge bg-secondary">Inactif</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex gap-1">
+                                                        {% for languageCode, status in serviceData.translations %}
+                                                            {% if status.complete %}
+                                                                <span class="badge bg-success" title="{{ status.language.nativeName }} - Complet">
+                                                                    {{ status.language.code|upper }}
+                                                                </span>
+                                                            {% elseif status.partial %}
+                                                                <span class="badge bg-warning" title="{{ status.language.nativeName }} - Partiel">
+                                                                    {{ status.language.code|upper }}
+                                                                </span>
+                                                            {% else %}
+                                                                <span class="badge bg-light text-dark" title="{{ status.language.nativeName }} - Manquant">
+                                                                    {{ status.language.code|upper }}
+                                                                </span>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="progress" style="height: 20px;">
+                                                        <div class="progress-bar" role="progressbar" 
+                                                             style="width: {{ serviceData.completionPercentage }}%"
+                                                             aria-valuenow="{{ serviceData.completionPercentage }}" 
+                                                             aria-valuemin="0" aria-valuemax="100">
+                                                            {{ serviceData.completionPercentage }}%
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="btn-group" role="group">
+                                                        <a href="{{ path('admin_service_show', {id: service.id}) }}" 
+                                                           class="btn btn-sm btn-outline-info"
+                                                           title="Voir">
+                                                            <i class="bi bi-eye"></i>
+                                                        </a>
+                                                        <a href="{{ path('admin_service_edit', {id: service.id}) }}" 
+                                                           class="btn btn-sm btn-outline-primary"
+                                                           title="Éditer">
+                                                            <i class="bi bi-pencil"></i>
+                                                        </a>
+                                                        <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                                data-bs-toggle="modal" 
+                                                                data-bs-target="#deleteModal{{ service.id }}"
+                                                                title="Supprimer">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </div>
+                                                    
+                                                    <!-- Delete Modal -->
+                                                    <div class="modal fade" id="deleteModal{{ service.id }}" tabindex="-1">
+                                                        <div class="modal-dialog">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title">Confirmer la suppression</h5>
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    Êtes-vous sûr de vouloir supprimer le service "{{ service.title }}" ?
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                                    <form method="post" action="{{ path('admin_service_delete', {id: service.id}) }}" class="d-inline">
+                                                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ service.id) }}">
+                                                                        <button type="submit" class="btn btn-danger">Supprimer</button>
+                                                                    </form>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Select all functionality
+document.getElementById('select-all').addEventListener('change', function() {
+    const checkboxes = document.querySelectorAll('.service-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = this.checked;
+    });
+});
+
+// Bulk form submission
+document.getElementById('bulk-form').addEventListener('submit', function(e) {
+    const checkedBoxes = document.querySelectorAll('.service-checkbox:checked');
+    if (checkedBoxes.length === 0) {
+        e.preventDefault();
+        alert('Veuillez sélectionner au moins un service.');
+        return false;
+    }
+    
+    const action = this.querySelector('select[name="action"]').value;
+    if (!action) {
+        e.preventDefault();
+        alert('Veuillez sélectionner une action.');
+        return false;
+    }
+    
+    if (action === 'delete') {
+        if (!confirm('Voulez-vous vraiment supprimer les services sélectionnés ?')) {
+            e.preventDefault();
+            return false;
+        }
+    }
+});
+</script>
+{% endblock %}
